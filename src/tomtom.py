@@ -2,6 +2,7 @@ import requests
 import json
 import os
 from typing import Dict, List, Tuple
+from tqdm import tqdm
 
 from dotenv import load_dotenv
 
@@ -35,7 +36,7 @@ def get_traffic_data(coordinates: List[Tuple], zoom: int) -> List[Dict]:
 
     all_data = []
 
-    for coordinate in coordinates:
+    for coordinate in tqdm(coordinates):
         # Send request and parse response
         url = TRAFFIC_URL.format(coordinate, zoom, API_KEY)
         response = requests.get(url)
