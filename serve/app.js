@@ -4,6 +4,7 @@ const map = tt.map({
     center: [-73.9712, 40.7831],
     zoom: 15,
 })
+
 function getTrafficData(point, callback) {
   const url = `https://api.tomtom.com/traffic/services/4/flowSegmentData/absolute/10/json?key=rTlCip82FgfXSuRLNRYHA5183Wl4mXzZ&point=${point}`;
   fetch(url)

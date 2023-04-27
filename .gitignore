@@ -133,3 +133,7 @@ dmypy.json
 
 # local test file
 test.ipynb
+
+# large data file
+data/centerline/Centerline.csv
+data/centerline/NYC_Zipcodes.csv
