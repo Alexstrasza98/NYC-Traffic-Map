@@ -9,7 +9,7 @@ def get_coords(row):
         row["the_geom"].replace("MULTILINESTRING ((", "").replace("))", "").split(", ")
     )
     coords = [c.split(" ") for c in coords]
-    coords = [(float(c[0]), float(c[1])) for c in coords]
+    coords = [(float(c[1]), float(c[0])) for c in coords]
     return coords
 
 
