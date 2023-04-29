@@ -1,38 +1,7 @@
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import udf
 
-
-def simple_congestion_model(expected_speed: int, actual_speed: int) -> int:
-    """
-    Evalute congestion level of a road segment depending on the difference between expected and actual speed.
-    This model is a naive version, which only considers the speed difference.
-    Reference: https://developer.tomtom.com/traffic-api/documentation/traffic-flow/raster-flow-tiles
-
-    Params:
-        expected_speed: Expected speed of a road segment
-        actual_speed: Actual speed of a road segment
-
-    Returns:
-        congestion_level: Congestion level of a road segment
-    """
-
-    speed_percentage = actual_speed / expected_speed
-
-    assert (
-        speed_percentage >= 0 and speed_percentage <= 1
-    ), f"Speed percentage must be between 0 and 1, got {speed_percentage}"
-
-    # 0 is reserved for road closed
-    if speed_percentage < 0.15:
-        congestion_level = 1
-    elif speed_percentage < 0.35:
-        congestion_level = 2
-    elif speed_percentage < 0.75:
-        congestion_level = 3
-    else:
-        congestion_level = 4
-
-    return congestion_level
+from congestion_model import simple_congestion_model
 
 
 def generate_congestion_level(road_closure, free_flow_speed, current_speed):
@@ -51,7 +20,7 @@ def run_spark_app():
     Main function to run spark app, reading in speed info and writing congestion info into database
     """
     spark = (
-        SparkSession.builder.master("local").appName("NYC-Traffic-Map").getOrCreate()
+        SparkSession.builder.master("local[*]").appName("NYC-Traffic-Map").getOrCreate()
     )
 
     # 1st step
