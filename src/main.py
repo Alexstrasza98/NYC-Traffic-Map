@@ -1,18 +1,7 @@
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import udf
 
-from congestion_model import simple_congestion_model
-
-
-def generate_congestion_level(road_closure, free_flow_speed, current_speed):
-    """
-    Generate congestion level for one piece of road segment
-    """
-
-    if road_closure:
-        return 0
-    else:
-        return simple_congestion_model(free_flow_speed, current_speed)
+from congestion_model import generate_congestion_level, simple_congestion_model
 
 
 def run_spark_app():
