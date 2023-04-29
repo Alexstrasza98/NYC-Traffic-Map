@@ -47,6 +47,8 @@ def get_traffic_data(coordinates: List[Tuple], zoom: int) -> List[Dict]:
             key: value for key, value in data.items() if key in expected_columns
         }
 
+        traffic_data["coordinates"] = traffic_data["coordinates"]["coordinate"]
+
         all_data.append(traffic_data)
 
     return all_data
