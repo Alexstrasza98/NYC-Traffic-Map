@@ -3,8 +3,11 @@ import json
 import os
 from typing import Dict, List, Tuple
 from tqdm import tqdm
+from statistics import median
 
 from dotenv import load_dotenv
+
+from utils import get_centerpoint
 
 load_dotenv()
 
@@ -76,7 +79,7 @@ def get_incident_data(bbox: str) -> List[Dict]:
         # Extract incident data
         incident_data = {
             "geometry_type": incident["geometry"]["type"],
-            "coordinates": incident["geometry"]["coordinates"],
+            "coordinate": get_centerpoint(incident["geometry"]["coordinates"]),
             "incident_type": incident["properties"]["iconCategory"],
         }
 

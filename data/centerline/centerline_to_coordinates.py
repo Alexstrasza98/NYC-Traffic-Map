@@ -1,3 +1,6 @@
+from statistics import median
+
+import numpy as np
 import pandas as pd
 
 
@@ -18,7 +21,13 @@ def get_centerpoint(row):
     Get centerpoint of a street
     """
     coords = row["coords"]
-    centerpoint = coords[len(coords) // 2]
+    if len(coords) % 2 == 1:
+        centerpoint = coords[len(coords) // 2]
+    else:
+        centerpoint = (
+            median([c[0] for c in coords]),
+            median([c[1] for c in coords]),
+        )
     return centerpoint
 
 

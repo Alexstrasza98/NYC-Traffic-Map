@@ -1,4 +1,4 @@
-from tomtom import get_traffic_data, get_incident_data
+from tomtom import get_incident_data, get_traffic_data
 from utils import write_json
 
 if __name__ == "__main__":
