@@ -73,7 +73,7 @@ def get_incident_data(bbox: str) -> List[Dict]:
     # Send request and parse response
     url = INCIDENT_URL.format(API_KEY, bbox)
     response = requests.get(url)
-    data = json.loads(response.text)["incidents"]
+    data = json.loads(response.text).get("incidents", [])
 
     for incident in data:
         # Extract incident data

@@ -1,5 +1,12 @@
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import udf
+from pyspark.sql.functions import (
+    udf,
+    col,
+    mean,
+    to_json,
+    monotonically_increasing_id,
+    avg,
+)
 
 from congestion_model import generate_congestion_level, simple_congestion_model
 
@@ -18,19 +25,35 @@ def run_spark_app():
     # or if we need to save the data first (file or database...)
     speed_df = spark.read.option("multiline", "true").json("data/traffic_tomtom.json")
 
-    # 2nd step
-    # spark do processing, getting congestion level information (and other global metrics)
-    congestion_udf = udf(generate_congestion_level)
-    congestion_df = speed_df.select(
-        congestion_udf("roadClosure", "freeFlowSpeed", "currentSpeed").alias(
-            "congestion_level"
-        ),
-        "coordinates",
-    )
+    # 2nd step - spark processing
 
-    # 3rd step
-    # spark write the result to database
-    congestion_df.write.json("data/congestion_map")
+    # get sample-level congestion level
+    congestion_udf = udf(generate_congestion_level)
+    speed_df = speed_df.withColumn(
+        "congestion_level",
+        congestion_udf(col("roadClosure"), col("freeFlowSpeed"), col("currentSpeed")),
+    )
+    speed_df = speed_df.withColumn("index", monotonically_increasing_id() + 1)
+    congestion_df = speed_df.select("index", "congestion_level", "coordinates")
+
+    # get congestion level distribution
+    congestion_dist = congestion_df.groupBy("congestion_level").count()
+
+    # get average speed and average speed percentage
+    average_speed = speed_df.agg(avg("currentSpeed").alias("average_speed"))
+    average_speed_percent = speed_df.select(
+        col("currentSpeed") / col("freeFlowSpeed")
+    ).agg(avg("(currentSpeed / freeFlowSpeed)").alias("average_speed_percent"))
+
+    # 3rd step - writing results to local files
+    congestion_df.write.json("data/congestion/congestion_map", mode="overwrite")
+    congestion_dist.write.csv(
+        "data/congestion/congestion_dist", mode="overwrite", header=True
+    )
+    average_speed.write.json("data/congestion/average_speed", mode="overwrite")
+    average_speed_percent.write.json(
+        "data/congestion/average_speed_percent", mode="overwrite"
+    )
 
     # TODO: does it mean we need three processers, one for calling TomTom, one for Spark, one for frontend?
     # or we can have one processer for calling TomTom and Spark, and another processer for frontend?
