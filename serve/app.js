@@ -1,8 +1,8 @@
 const map = tt.map({
     key: 'rTlCip82FgfXSuRLNRYHA5183Wl4mXzZ',
     container: "map",
-    center: [-73.9712, 40.7831],
-    zoom: 15,
+    center: [-73.9853279, 40.7552281],
+    zoom: 13,
 })
 
 map.addControl(new tt.FullscreenControl());
@@ -15,7 +15,7 @@ async function loadJSON(filename) {
 
 function handleTrafficData(trafficData, id) {
     const coordinates = trafficData.coordinates.map(coordinate => [coordinate.longitude, coordinate.latitude]);
-    drawLine(id, coordinates, getCongestionColor(trafficData.congestion_level), 5);
+    drawLine(id, coordinates, getCongestionColor(trafficData.congestion_level), 3);
 }
 
 function getCongestionColor(congestionLevel) {
@@ -29,7 +29,7 @@ function getCongestionColor(congestionLevel) {
       case '4':
         return 'green';
       default:
-        return 'blue';
+        return '#999999';
     }
 }
 
@@ -54,7 +54,7 @@ function getIncidentType(incidentType) {
         case 8:
             return 'Road Closed';
         case 9:
-            return 'Road Works';
+            return 'Road Working';
         case 10:
             return 'Wind';
         case 11:
@@ -161,6 +161,9 @@ async function fetchAndHandleIncidentData() {
     const incidentDataArray = await loadJSON('../data/incident_tomtom.json');
     incidentDataArray.forEach((incidentData) => {
         const coordinate = incidentData.coordinate;
+        if (incidentData.incident_type === 6) {
+            return;
+        }
         createMarker(incidentData.incident_type, coordinate, incidentColor(incidentData.incident_type), `Incident Type: ${getIncidentType(incidentData.incident_type)}`);
     });
 }
