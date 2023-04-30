@@ -3,10 +3,13 @@ const map = tt.map({
     container: "map",
     center: [-73.9853279, 40.7552281],
     zoom: 13,
+    style: `https://api.tomtom.com/style/1/style/22.2.1-9?key=rTlCip82FgfXSuRLNRYHA5183Wl4mXzZ&map=basic_night`
 })
 
 map.addControl(new tt.FullscreenControl());
 map.addControl(new tt.NavigationControl());
+
+new Foldable('.js-foldable', 'top-right');
 
 async function loadJSON(filename) {
     const response = await fetch(filename);
@@ -124,6 +127,46 @@ function drawLine(id, coordinates, color, width) {
       };
 
       map.addLayer(layerProperties);
+
+      document.querySelector('#showredroads').addEventListener('change', function(event) {
+        if (color === 'red') {
+            if (event.target.checked) {
+                map.setLayoutProperty(id, 'visibility', 'visible');
+            } else {
+                map.setLayoutProperty(id, 'visibility', 'none');
+            }
+        }
+     });
+
+     document.querySelector('#showorangeroads').addEventListener('change', function(event) {
+        if (color === 'orange') {
+            if (event.target.checked) {
+                map.setLayoutProperty(id, 'visibility', 'visible');
+            } else {
+                map.setLayoutProperty(id, 'visibility', 'none');
+            }
+        }
+     });
+
+     document.querySelector('#showyellowroads').addEventListener('change', function(event) {
+        if (color === 'yellow') {
+            if (event.target.checked) {
+                map.setLayoutProperty(id, 'visibility', 'visible');
+            } else {
+                map.setLayoutProperty(id, 'visibility', 'none');
+            }
+        }
+     });
+
+     document.querySelector('#showgreenroads').addEventListener('change', function(event) {
+        if (color === 'green') {
+            if (event.target.checked) {
+                map.setLayoutProperty(id, 'visibility', 'visible');
+            } else {
+                map.setLayoutProperty(id, 'visibility', 'none');
+            }
+        }
+     });
 }
 
 function createMarker(type, position, color, popupText) {
@@ -144,10 +187,23 @@ function createMarker(type, position, color, popupText) {
 
     var popup = new tt.Popup({offset: 30}).setText(popupText);
 
-    new tt.Marker({element: markerElement, anchor: 'bottom'})
+    var marker = new tt.Marker({element: markerElement, anchor: 'bottom'})
         .setLngLat(position)
         .setPopup(popup)
         .addTo(map);
+    
+    document.querySelector('#showjam').addEventListener('change', function(event) {
+        if (type === 6) {
+            if (event.target.checked) {
+                marker = new tt.Marker({element: markerElement, anchor: 'bottom'})
+                    .setLngLat(position)
+                    .setPopup(popup)
+                    .addTo(map);
+            } else {
+                marker.remove();
+            }
+        }
+    });
 }
 
 async function fetchAndUpdateTrafficData() {
@@ -161,9 +217,6 @@ async function fetchAndHandleIncidentData() {
     const incidentDataArray = await loadJSON('../data/incident_tomtom.json');
     incidentDataArray.forEach((incidentData) => {
         const coordinate = incidentData.coordinate;
-        if (incidentData.incident_type === 6) {
-            return;
-        }
         createMarker(incidentData.incident_type, coordinate, incidentColor(incidentData.incident_type), `Incident Type: ${getIncidentType(incidentData.incident_type)}`);
     });
 }
