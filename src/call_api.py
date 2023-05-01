@@ -1,7 +1,13 @@
-from tomtom import get_incident_data, get_traffic_data
+import json
+
+import pandas as pd
+
+from apis import get_incident_data, get_traffic_data
 from utils import write_json
 
 if __name__ == "__main__":
+
+    # Requesting traffic data
     # print("Requesting traffic data...")
     # with open("./data/coordinates_manhattan.txt", "r") as f:
     #     coordinates = f.readlines()
@@ -12,7 +18,15 @@ if __name__ == "__main__":
     # # Only fetch first 1000 samples
     # traffic_data = get_traffic_data(coordinates[:1000], zoom)
     # write_json(traffic_data, "./data/traffic_tomtom.json")
+    print("Fetching data locally...")
+    traffic_data = pd.read_csv("./data/traffic_data_prefetched.csv")
 
+    used_data = traffic_data[traffic_data["frc"] == "FRC4"][:1000]
+    used_data["coordinates"] = used_data["coordinates"].apply(lambda x: json.loads(x.replace("'", "\"")))
+    used_data_json = used_data.to_dict(orient="records")
+    write_json(used_data_json, "./data/traffic_tomtom.json")
+
+    # Requesting incident data
     print("Requesting incident data...")
     incident_data = []
     bboxs = [
@@ -21,5 +35,6 @@ if __name__ == "__main__":
         "40.789491 -73.980009,-73.930612,40.814190",
     ]
     for bbox in bboxs:
-        incident_data.append(get_incident_data(bbox))
+        incident_data.extend(get_incident_data(bbox))
     write_json(incident_data, "./data/incident_tomtom.json")
+
