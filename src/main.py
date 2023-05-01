@@ -1,15 +1,15 @@
-from pyspark.sql import SparkSession
 from pyspark import SparkContext
-from call_api import get_data_async
+from pyspark.sql import SparkSession
 from pyspark.sql.functions import (
-    udf,
+    avg,
     col,
     mean,
-    to_json,
     monotonically_increasing_id,
-    avg,
+    to_json,
+    udf,
 )
 
+from call_api import get_data_async
 from congestion_model import generate_congestion_level, simple_congestion_model
 
 

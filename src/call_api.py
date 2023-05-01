@@ -1,21 +1,23 @@
-from utils import write_json
-from pyspark.sql import SparkSession
-from pyspark.sql.functions import udf
 import asyncio
 import os
-import aiohttp
-from tomtom import get_traffic_data, get_incident_data, get_traffic_data_async
 
+import aiohttp
 from dotenv import load_dotenv
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import udf
+
+from tomtom import get_incident_data, get_traffic_data, get_traffic_data_async
+from utils import write_json
 
 load_dotenv()
 
-API_KEY = os.getenv("TomTomAPIKey")
+API_KEY = os.getenv("TOMTOM_API_KEY")
+
 
 def get_data_async(sc):
-    text_file = sc.read.text("../data/coord_manhatan_test.txt")
+    text_file = sc.read.text("data/coordinates_manhattan_test.txt")
     print("Requesting traffic data...")
-    import asyncio
+
     loop = asyncio.get_event_loop()
     res = loop.run_until_complete(get_traffic_data_async(text_file.rdd, "15", API_KEY))
     loop.close()
@@ -24,32 +26,18 @@ def get_data_async(sc):
     return res
 
 
-
 if __name__ == "__main__":
     # trying to get the request and data loading part into pyspark session
     spark_txt = SparkSession.builder.appName("ReadCoordFile").getOrCreate()
-    text_file = spark_txt.read.text("../data/coord_manhatan_test.txt")
+    text_file = spark_txt.read.text("data/coordinates_manhattan_test.txt")
     print("Requesting traffic data...")
-    import asyncio
 
     loop = asyncio.get_event_loop()
     res = loop.run_until_complete(get_traffic_data_async(text_file.rdd, "15", API_KEY))
     loop.close()
     # for line in text_file.rdd.map(lambda row: row[0]).collect():
-        # print(type(line))
-        # print(line)
-
-
-
-
-
-
-
-
-
-
-
-
+    # print(type(line))
+    # print(line)
 
     # with open("./data/coordinates_manhattan.txt", "r") as f:
     #     coordinates = f.readlines()

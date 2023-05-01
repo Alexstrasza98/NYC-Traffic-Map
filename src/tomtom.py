@@ -1,14 +1,13 @@
-import time
-
-import requests
+import asyncio
 import json
 import os
+import time
 from typing import Dict, List, Tuple
-from tqdm import tqdm
-import aiohttp
-import asyncio
 
+import aiohttp
+import requests
 from dotenv import load_dotenv
+from tqdm import tqdm
 
 load_dotenv()
 
