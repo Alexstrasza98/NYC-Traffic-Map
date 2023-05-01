@@ -47,7 +47,27 @@
       }
   </style>
   <body>
-    <div id="map" style="width: 100%; height: 100%"></div>
+    <script type='text/javascript' src='tail.select.min.js'></script>
+    <div id="map" style="width: 100%; height: 100%">
+      <div class='tt-overlay-panel -left-top -medium js-foldable' style='width: 200px;'>
+        <div class='tt-form'>
+            <div class='tt-spacing-top-24'>
+                <label class='tt-form-label'>Traffic layers</label>
+                <input type='checkbox' class='tt-checkbox' id='showjam' checked='true'>
+                <label class='tt-label' for="showjam">Show_Jam</label>
+                <input type='checkbox' class='tt-checkbox' id='showredroads' checked='true'>
+                <label class='tt-label' for="showredroads">Show_Red_Roads</label>
+                <input type='checkbox' class='tt-checkbox' id='showorangeroads' checked='true'>
+                <label class='tt-label' for="showorangeroads">Show_Orange_Roads</label>
+                <input type='checkbox' class='tt-checkbox' id='showyellowroads' checked='true'>
+                <label class='tt-label' for="showyellowroads">Show_Yellow_Roads</label>
+                <input type='checkbox' class='tt-checkbox' id='showgreenroads' checked='true'>
+                <label class='tt-label' for="showgreenroads">Show_Green_Roads</label>
+            </div>
+        </div>
+      </div>
+    </div>
+    <script type='text/javascript' src='foldable.js'></script>
     <script src="app.js"></script>
   </body>
 </html>
