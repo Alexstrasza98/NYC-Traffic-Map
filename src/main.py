@@ -1,6 +1,6 @@
 from pyspark.sql import SparkSession
 from pyspark import SparkContext
-from call_api import get_data_async
+from call_api import get_data_async, get_weather_async, get_incident_middlefile
 from pyspark.sql.functions import (
     udf,
     col,
@@ -24,6 +24,7 @@ def run_spark_app():
     # 1st step
     # spark reading in speed information get from TomTom API
     speed_data = get_data_async(spark)
+    weather_data = get_weather_async(spark)
     print(speed_data)
     print(type(speed_data))
     # TODO: figure out if we can request data from TomTom API and send to Spark directly,
@@ -32,6 +33,17 @@ def run_spark_app():
     sc = SparkContext.getOrCreate()
     speed_df = spark.createDataFrame(spark.read.json(sc.parallelize(speed_data)).rdd)
     speed_df.show()
+    print("weather", weather_data)
+    waether_df = spark.createDataFrame(spark.read.json(sc.parallelize(weather_data)).rdd)
+    waether_df.show()
+
+    incidents_data = get_incident_middlefile()
+    waether_df = spark.createDataFrame(spark.read.json(sc.parallelize(incidents_data)).rdd)
+    waether_df.show()
+
+
+
+
 
     # 2nd step - spark processing
 
