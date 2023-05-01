@@ -6,6 +6,12 @@ from typing import Dict, List, Tuple, Union
 def write_json(data: Union[List, Dict], json_file: str) -> None:
     with open(json_file, "w") as outfile:
         json.dump(data, outfile)
+            
+
+def read_json(json_file: str) -> Union[List, Dict]:
+    with open(json_file, "r") as infile:
+        data = json.load(infile)
+    return data
 
 
 def get_centerpoint(list_of_coords: List) -> Tuple[float, float]:
