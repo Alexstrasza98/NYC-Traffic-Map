@@ -4,3 +4,15 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
 
 The final project repo for 2023 Spring ELEN 6889 Large Scale Streaming Processing at Columbia University.
+
+## Instruction
+
+How to run:
+
+```console
+python3 src/main.py
+```
+
+```console
+spark-submit --master "local[*]" --py-files src/congestion_model.py src/main.py
+```

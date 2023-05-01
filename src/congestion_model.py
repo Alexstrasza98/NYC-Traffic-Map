@@ -29,3 +29,14 @@ def simple_congestion_model(expected_speed: int, actual_speed: int) -> int:
         congestion_level = 4
 
     return congestion_level
+
+
+def generate_congestion_level(road_closure, free_flow_speed, current_speed):
+    """
+    Generate congestion level for one piece of road segment
+    """
+
+    if road_closure:
+        return 0
+    else:
+        return simple_congestion_model(free_flow_speed, current_speed)

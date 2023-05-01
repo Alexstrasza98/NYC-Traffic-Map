@@ -1,3 +1,5 @@
+import time
+
 import requests
 import json
 import os
@@ -100,14 +102,27 @@ async def get_traffic_data_async(coord_rdd, zoom, API_KEY):
             responses.append(single_response)
         tomtom = await asyncio.gather(*responses)
     print(tomtom)
+    return tomtom
 
 async def single_call(session, coord, zoom, API_KEY):
     url_traffic = TRAFFIC_URL.format(coord, zoom, API_KEY)
-    print(url_traffic)
+    # print(url_traffic)
     async with session.get(url_traffic) as response:
         content_type = response.headers.get('content-type')
-        # result_data = await response.json()
-        print(content_type)
-        # return result_data
+        if content_type != "application/json":
+            result_data = await response.json()
+        else:
+            # if detects xml:
+            #   scenario 1: ran out of all the requests, then probably should just finish everything. (here will it be reseted for another 15 minus?)
+            #   scenatio 2: ran out of the request for 1 second, wait 1 second.
+            #seem like the best solution is to downsample (condsidering the demo and limited requests)
 
-    #load in spark rdd
+            time.sleep(1)
+        print(content_type)
+        print(type(content_type))
+        try:
+            return result_data
+        except:
+            return None
+
+
