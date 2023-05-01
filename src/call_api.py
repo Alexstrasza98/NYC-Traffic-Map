@@ -6,7 +6,6 @@ from apis import get_incident_data, get_traffic_data
 from utils import write_json
 
 if __name__ == "__main__":
-
     # Requesting traffic data
     # print("Requesting traffic data...")
     # with open("./data/coordinates_manhattan.txt", "r") as f:
@@ -21,8 +20,10 @@ if __name__ == "__main__":
     print("Fetching data locally...")
     traffic_data = pd.read_csv("./data/traffic_data_prefetched.csv")
 
-    used_data = traffic_data[traffic_data["frc"] == "FRC4"][:1000]
-    used_data["coordinates"] = used_data["coordinates"].apply(lambda x: json.loads(x.replace("'", "\"")))
+    used_data = traffic_data[traffic_data["frc"] == "FRC4"]
+    used_data["coordinates"] = used_data["coordinates"].apply(
+        lambda x: json.loads(x.replace("'", '"'))
+    )
     used_data_json = used_data.to_dict(orient="records")
     write_json(used_data_json, "./data/traffic_tomtom.json")
 
@@ -37,4 +38,3 @@ if __name__ == "__main__":
     for bbox in bboxs:
         incident_data.extend(get_incident_data(bbox))
     write_json(incident_data, "./data/incident_tomtom.json")
-
