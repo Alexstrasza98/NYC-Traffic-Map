@@ -134,6 +134,7 @@ dmypy.json
 
 # local test file
 test.ipynb
+test.py
 
 # large data file
 data/centerline/Centerline.csv
