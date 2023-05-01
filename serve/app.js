@@ -16,6 +16,38 @@ async function loadJSON(filename) {
     return await response.json();
 }
 
+async function loadCSV(filename) {
+    const response = await fetch(filename);
+    const data = await response.text();
+    const rows = data.split('\n');
+
+    const header = rows[0].split(',');
+    const records = [];
+
+    for (let i = 1; i < rows.length; i++) {
+      const row = rows[i].split(',');
+      const record = {};
+
+      let hasMissingValues = false;
+
+      for (let j = 0; j < row.length; j++) {
+        if (row[j] === '') {
+            hasMissingValues = true;
+            break;
+        }
+        record[header[j]] = isNaN(row[j]) ? row[j] : Number(row[j]);
+      }
+      
+      if (!hasMissingValues) {
+        records.push(record);
+      }
+    }
+
+    records.sort((a, b) => a.congestion_level - b.congestion_level);
+
+    return records;
+}
+
 function handleTrafficData(trafficData, id) {
     const coordinates = trafficData.coordinates.map(coordinate => [coordinate.longitude, coordinate.latitude]);
     drawLine(id, coordinates, getCongestionColor(trafficData.congestion_level), 3);
@@ -221,8 +253,32 @@ async function fetchAndHandleIncidentData() {
     });
 }
 
+async function fetchAndDisplayStatisticData() {
+    const averageSpeedData = await loadJSON('../data/congestion/average_speed/part-00000-7dbbb57b-685b-4084-ac14-ce052498c8e9-c000.json');
+    const averageSpeedElement = document.getElementById('average_speed');
+    averageSpeedElement.textContent = `Average Speed: ${averageSpeedData.average_speed}`;
+
+    const averageSpeedPercentData = await loadJSON('../data/congestion/average_speed_percent/part-00000-d7d0f35e-8dc9-4c4b-95c0-4ecf5250ee28-c000.json');
+    const averageSpeedPercentElement = document.getElementById('average_speed_percent');
+    averageSpeedPercentElement.textContent = `Average Speed Percent: ${averageSpeedPercentData.average_speed_percent}`;
+
+    const congestionLevelData = await loadCSV('../data/congestion/congestion_dist/part-00000-c0e82443-7450-4cf6-806e-b8e0d1c09903-c000.csv');
+    const congestionLevelElement = document.getElementById('tbody');
+    congestionLevelData.forEach((congestionLevel) => {
+        let row = document.createElement("tr");
+        let cell1 = document.createElement("td");
+        cell1.textContent = congestionLevel.congestion_level;
+        row.appendChild(cell1);
+        let cell2 = document.createElement("td");
+        cell2.textContent = congestionLevel.count;
+        row.appendChild(cell2);
+        congestionLevelElement.appendChild(row);
+    })
+}
+
 map.on('load', function() {
     fetchAndUpdateTrafficData();
     fetchAndHandleIncidentData();
+    fetchAndDisplayStatisticData();
 });
 setInterval(fetchAndUpdateTrafficData, 300000);

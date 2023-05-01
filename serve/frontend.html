@@ -45,6 +45,18 @@
           position: absolute;
           width: 24px;
       }
+      #overlay {
+        position: absolute; 
+        height: 100%; 
+        width: 100%;
+        z-index: 1100;
+      }
+      #overlay-content {
+        margin: 100px; 
+        text-align: center; 
+        padding: 10px; 
+        background: white;
+      }
   </style>
   <body>
     <script type='text/javascript' src='tail.select.min.js'></script>
@@ -63,6 +75,19 @@
                 <label class='tt-label' for="showyellowroads">Show_Yellow_Roads</label>
                 <input type='checkbox' class='tt-checkbox' id='showgreenroads' checked='true'>
                 <label class='tt-label' for="showgreenroads">Show_Green_Roads</label>
+                <br>
+                <label class='tt-form-label'>Statistic Data</label>
+                <h3 id="average_speed"></h3>
+                <h3 id="average_speed_percent"></h3>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Congestion Level</th>
+                      <th>Count</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tbody"></tbody>
+                </table>
             </div>
         </div>
       </div>
