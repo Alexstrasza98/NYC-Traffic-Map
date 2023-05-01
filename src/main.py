@@ -1,12 +1,6 @@
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import (
-    udf,
-    col,
-    mean,
-    to_json,
-    monotonically_increasing_id,
-    avg,
-)
+from pyspark.sql.functions import (avg, col, mean, monotonically_increasing_id,
+                                   to_json, udf)
 
 from congestion_model import generate_congestion_level, simple_congestion_model
 

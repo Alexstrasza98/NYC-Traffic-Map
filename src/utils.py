@@ -20,3 +20,20 @@ def get_centerpoint(list_of_coords: List) -> Tuple[float, float]:
             median([c[1] for c in list_of_coords]),
         )
     return centerpoint
+
+
+def modify_json(input_file, output_file):
+    """
+    Modify json single line file into multiple line file
+    """
+
+    with open(input_file, "r") as f:
+        json_entries = f.readlines()
+
+    data = []
+
+    for entry in json_entries:
+        data.append(json.loads(entry))
+
+    with open(output_file, "w") as f:
+        json.dump(data, f, indent=4)

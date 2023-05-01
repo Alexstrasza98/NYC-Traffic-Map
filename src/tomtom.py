@@ -1,11 +1,11 @@
-import requests
 import json
 import os
-from typing import Dict, List, Tuple
-from tqdm import tqdm
 from statistics import median
+from typing import Dict, List, Tuple
 
+import requests
 from dotenv import load_dotenv
+from tqdm import tqdm
 
 from utils import get_centerpoint
 
