@@ -604,11 +604,35 @@ body {
         top: 16px;
     }
 
-.tt-overlay-panel.-right-top {
+.tt-overlay-panel.-left-bottom {
+        position: absolute;
+        left: 16px;
+        bottom: 16px;
+    }
+
+.tt-overlay-panel.-right-1 {
+        top: 15px;
         position: absolute;
         right: 16px;
-        top: 16px;
     }
+
+.tt-overlay-panel.-right-2 {
+        top: 350px;
+        position: absolute;
+        right: 16px;
+}
+
+.tt-overlay-panel.-right-3 {
+    top: 575px;
+    position: absolute;
+    right: 16px;
+}
+
+.tt-overlay-panel.-right-4 {
+    top: 790px;
+    position: absolute;
+    right: 16px;
+}
 
 .tt-overlay-panel.-medium {
         max-width: 300px;
