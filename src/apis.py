@@ -14,7 +14,10 @@ TOMTOM_API_KEY = os.getenv("TOMTOM_API_KEY")
 WEATHER_API_KEY = os.getenv("WEATHER_API_KEY")
 TRAFFIC_URL = "https://api.tomtom.com/traffic/services/4/flowSegmentData/absolute/10/json?point={}&zoom={}&key={}"
 INCIDENT_URL = "https://api.tomtom.com/traffic/services/5/incidentDetails?key={}&bbox={}&language=en-GB&t=1111&timeValidityFilter=present"
-WEARTHER_URL = "https://pro.openweathermap.org/data/2.5/forecast/hourly?lat={}&lon={}&appid={}"
+WEARTHER_URL = (
+    "https://pro.openweathermap.org/data/2.5/forecast/hourly?lat={}&lon={}&appid={}"
+)
+
 
 def get_traffic_data(coordinates: List[Tuple], zoom: int) -> List[Dict]:
     """
@@ -89,7 +92,6 @@ def get_incident_data(bbox: str) -> List[Dict]:
 
 
 def get_weather_data(coordinates: List[Tuple]) -> List[Dict]:
-
     all_data = []
 
     for coordinate in tqdm(coordinates):
@@ -97,14 +99,14 @@ def get_weather_data(coordinates: List[Tuple]) -> List[Dict]:
         url = WEARTHER_URL.format(lat, lon, WEATHER_API_KEY)
         data = requests.get(url).json()
 
-        current_data = data['list'][0]
+        current_data = data["list"][0]
 
-        rain = current_data.get('rain', {}).get('1h', 0)
-        wind_speed = current_data['wind']['speed']
-        temp = current_data['main']['temp']
-        humidity = current_data['main']['humidity']
-        visibility = current_data.get('visibility', 0)
-        weather = current_data['weather'][0]['main']
+        rain = current_data.get("rain", {}).get("1h", 0)
+        wind_speed = current_data["wind"]["speed"]
+        temp = current_data["main"]["temp"]
+        humidity = current_data["main"]["humidity"]
+        visibility = current_data.get("visibility", 0)
+        weather = current_data["weather"][0]["main"]
 
         weather_data = {
             "coordinate": coordinate,
