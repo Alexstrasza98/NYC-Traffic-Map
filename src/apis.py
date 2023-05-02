@@ -11,12 +11,13 @@ from tqdm import tqdm
 
 load_dotenv()
 
-API_KEY = os.getenv("API_KEY")
+API_KEY = os.getenv("TOMTOM_API_KEY")
+WEATHER_API_KEY = os.getenv("WEATHER_API_KEY")
 TRAFFIC_URL = "https://api.tomtom.com/traffic/services/4/flowSegmentData/absolute/10/json?point={}&zoom={}&key={}"
 INCIDENT_URL = "https://api.tomtom.com/traffic/services/5/incidentDetails?key={}&bbox={}&language=en-GB&t=1111&timeValidityFilter=present"
+WEARTHER_URL = "https://pro.openweathermap.org/data/2.5/forecast/hourly?lat={}&lon={}&appid={}"
 
-global count
-count = 0
+
 
 
 def get_traffic_data(coordinates: List[Tuple], zoom: int) -> List[Dict]:
@@ -75,6 +76,7 @@ def get_incident_data(bbox: str) -> List[Dict]:
 
     # Send request and parse response
     url = INCIDENT_URL.format(API_KEY, bbox)
+    print(url)
     response = requests.get(url)
     data = json.loads(response.text)["incidents"]
 
@@ -91,16 +93,14 @@ def get_incident_data(bbox: str) -> List[Dict]:
     return all_data
 
 
-async def get_traffic_data_async(coord_rdd, zoom, API_KEY):
-    # for line in coord_rdd.map(lambda row: row[0]).collect():
-    #     print(line)
+async def get_traffic_data_async(coord_rdd, zoom):
     async with aiohttp.ClientSession() as session:
         responses = []
         for line in coord_rdd.map(lambda row: row[0]).collect():
             single_response = asyncio.ensure_future(single_call(session, line, zoom, API_KEY))
             responses.append(single_response)
         tomtom = await asyncio.gather(*responses)
-    print(tomtom)
+    # print(tomtom)
     return tomtom
 
 async def single_call(session, coord, zoom, API_KEY):
@@ -108,14 +108,13 @@ async def single_call(session, coord, zoom, API_KEY):
     # print(url_traffic)
     async with session.get(url_traffic) as response:
         content_type = response.headers.get('content-type')
-        if content_type != "application/json":
+        if content_type != "text/xml":
             result_data = await response.json()
         else:
             # if detects xml:
             #   scenario 1: ran out of all the requests, then probably should just finish everything. (here will it be reseted for another 15 minus?)
             #   scenatio 2: ran out of the request for 1 second, wait 1 second.
             #seem like the best solution is to downsample (condsidering the demo and limited requests)
-
             time.sleep(1)
         print(content_type)
         print(type(content_type))
@@ -124,4 +123,47 @@ async def single_call(session, coord, zoom, API_KEY):
         except:
             return None
 
+async def get_weather_data_async(coord_rdd):
+    async with aiohttp.ClientSession() as session:
+        responses = []
+        for coordinate in coord_rdd.map(lambda row: row[0]).collect():
+            single_response = asyncio.ensure_future(single_call_weather(session, coordinate))
+            responses.append(single_response)
+        weather = await asyncio.gather(*responses)
+    print(weather)
+    return weather
 
+async def single_call_weather(session, coordinate: List[Tuple]) -> List[Dict]:
+    lat, lon = coordinate.split(",")
+    url_weather = WEARTHER_URL.format(lat, lon, WEATHER_API_KEY)
+    print(url_weather)
+    async with session.get(url_weather) as response:
+        content_type = response.headers.get('content-type')
+        if content_type != "text/xml":
+            result_data = await response.json()
+            print(result_data)
+            current_data = result_data['list'][0]
+            rain = current_data.get('rain', {}).get('1h', 0)
+            wind_speed = current_data['wind']['speed']
+            temp = current_data['main']['temp']
+            humidity = current_data['main']['humidity']
+            visibility = current_data.get('visibility', 0)
+            weather = current_data['weather'][0]['main']
+
+            weather_data = {
+                "coordinate": coordinate,
+                "temperature": temp,
+                "humidity": humidity,
+                "rain": rain,
+                "wind_speed": wind_speed,
+                "visibility": visibility,
+                "weather": weather,
+            }
+        else:
+            time.sleep(1)
+        print(content_type)
+        print(type(content_type))
+        try:
+            return weather_data
+        except:
+            return None
