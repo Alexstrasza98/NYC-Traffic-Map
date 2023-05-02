@@ -1,6 +1,9 @@
+import os
+from glob import glob
+from pprint import pprint
+
 from pyspark import SparkContext
 from pyspark.sql import SparkSession
-from call_api import get_data_async, get_weather_async, get_incident_middlefile
 from pyspark.sql.functions import (
     avg,
     col,
@@ -10,7 +13,9 @@ from pyspark.sql.functions import (
     udf,
 )
 
+from call_api import get_data_async, get_incident_middlefile, get_weather_async
 from congestion_model import generate_congestion_level, simple_congestion_model
+from utils import modify_json, write_json
 
 
 def run_spark_app():
@@ -25,6 +30,7 @@ def run_spark_app():
     # spark reading in speed information get from TomTom API
     speed_data = get_data_async(spark)
     weather_data = get_weather_async(spark)
+    incidents_data = get_incident_middlefile()
 
     # TODO: figure out if we can request data from TomTom API and send to Spark directly,
     # or if we need to save the data first (file or database...)
@@ -36,13 +42,12 @@ def run_spark_app():
         spark.read.json(sc.parallelize(weather_data)).rdd
     )
 
-    incidents_data = get_incident_middlefile()
     incident_df = spark.createDataFrame(
         spark.read.json(sc.parallelize(incidents_data)).rdd
     )
 
-    # 2nd step - spark processing
-
+    ## 2nd step - spark processing
+    ## Traffic data
     # get sample-level congestion level
     congestion_udf = udf(generate_congestion_level)
     speed_df = speed_df.withColumn(
@@ -60,16 +65,46 @@ def run_spark_app():
     average_speed_percent = speed_df.select(
         col("currentSpeed") / col("freeFlowSpeed")
     ).agg(avg("(currentSpeed / freeFlowSpeed)").alias("average_speed_percent"))
+    speed_statistics = average_speed.crossJoin(average_speed_percent)
+
+    ## Incident data
+    incident_dist = incident_df.groupBy("incident_type").count()
+
+    ## Weather data
+    main_weather = (
+        weather_df.groupBy("weather").count().orderBy("count", ascending=False).limit(1)
+    )
+
+    avg_temp = weather_df.agg(avg("temperature").alias("average_temp"))
+    avg_humidity = weather_df.agg(avg("humidity").alias("average_humidity"))
+    avg_wind_speed = weather_df.agg(avg("wind_speed").alias("average_wind_speed"))
+    avg_rain = weather_df.agg(avg("rain").alias("average_rain"))
+    avg_visibility = weather_df.agg(avg("visibility").alias("average_visibility"))
+
+    weather_result = (
+        main_weather.select("weather")
+        .crossJoin(avg_temp)
+        .crossJoin(avg_humidity)
+        .crossJoin(avg_wind_speed)
+        .crossJoin(avg_rain)
+        .crossJoin(avg_visibility)
+    )
 
     # 3rd step - writing results to local files
     congestion_df.write.json("data/congestion/congestion_map", mode="overwrite")
     congestion_dist.write.csv(
         "data/congestion/congestion_dist", mode="overwrite", header=True
     )
-    average_speed.write.json("data/congestion/average_speed", mode="overwrite")
-    average_speed_percent.write.json(
-        "data/congestion/average_speed_percent", mode="overwrite"
+    speed_statistics.write.json(
+        "data/congestion/congestion_statistics", mode="overwrite"
     )
+
+    incident_df.write.json("data/incident/incident_map", mode="overwrite")
+    incident_dist.write.csv(
+        "data/incident/incident_dist", mode="overwrite", header=True
+    )
+
+    weather_result.write.json("data/weather/weather_statistics", mode="overwrite")
 
     # TODO: does it mean we need three processers, one for calling TomTom, one for Spark, one for frontend?
     # or we can have one processer for calling TomTom and Spark, and another processer for frontend?
@@ -77,5 +112,30 @@ def run_spark_app():
     # congestion_df.awaitTermination()
 
 
+def fix_file_name(folder_path, file_format):
+    input_file_name = glob(os.path.join(folder_path, f"*.{file_format}"))[0]
+    output_file_name = folder_path.split("/")[-1] + f".{file_format}"
+    os.rename(input_file_name, os.path.join(folder_path, output_file_name))
+
+
 if __name__ == "__main__":
     run_spark_app()
+
+    # Fix output file name
+    input_traffic = glob("./data/congestion/congestion_map/*.json")[0]
+    output_traffic = "./data/congestion/congestion_map/congestion_map.json"
+    modify_json(input_traffic, output_traffic)
+
+    input_incident = glob("./data/incident/incident_map/*.json")[0]
+    output_incicent = "./data/incident/incident_map/incident_map.json"
+    modify_json(input_incident, output_incicent)
+
+    folders_to_fix = [
+        ["data/congestion/congestion_dist", "csv"],
+        ["data/congestion/congestion_statistics", "json"],
+        ["data/incident/incident_dist", "csv"],
+        ["data/weather/weather_statistics", "json"],
+    ]
+
+    for folder_path, file_format in folders_to_fix:
+        fix_file_name(folder_path, file_format)

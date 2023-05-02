@@ -1,17 +1,17 @@
 import asyncio
 import os
-import aiohttp
-from apis import (
-    get_traffic_data,
-    get_incident_data,
-    get_traffic_data_async,
-    get_weather_data_async,
-)
 
+import aiohttp
 from dotenv import load_dotenv
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import udf
 
+from apis import (
+    get_incident_data,
+    get_traffic_data,
+    get_traffic_data_async,
+    get_weather_data_async,
+)
 from utils import write_json
 
 load_dotenv()
@@ -26,8 +26,6 @@ def get_data_async(sc):
     loop = asyncio.get_event_loop()
     res = loop.run_until_complete(get_traffic_data_async(text_file.rdd, "15"))
     loop.close()
-    # print(res)
-    # print(type(res))
     return res
 
 

@@ -99,7 +99,7 @@ async def get_traffic_data_async(coord_rdd, zoom):
         responses = []
         for line in coord_rdd.map(lambda row: row[0]).collect():
             single_response = asyncio.ensure_future(
-                single_call(session, line, zoom, API_KEY)
+                single_call(session, line, zoom, TOMTOM_API_KEY)
             )
             responses.append(single_response)
         tomtom = await asyncio.gather(*responses)
@@ -112,6 +112,23 @@ async def single_call(session, coord, zoom, API_KEY):
         content_type = response.headers.get("content-type")
         if content_type != "text/xml":
             result_data = await response.json()
+            data = result_data["flowSegmentData"]
+            expected_columns = [
+                "currentSpeed",
+                "freeFlowSpeed",
+                "currentTravelTime",
+                "freeFlowTravelTime",
+                "roadClosure",
+                "coordinates",
+                "frc",
+            ]
+            # Extract traffic data
+            traffic_data = {
+                key: value for key, value in data.items() if key in expected_columns
+            }
+
+            traffic_data["coordinates"] = traffic_data["coordinates"]["coordinate"]
+
         else:
             # if detects xml:
             #   scenario 1: ran out of all the requests, then probably should just finish everything. (here will it be reseted for another 15 minus?)
@@ -119,7 +136,7 @@ async def single_call(session, coord, zoom, API_KEY):
             # seem like the best solution is to downsample (condsidering the demo and limited requests)
             time.sleep(1)
         try:
-            return result_data
+            return traffic_data
         except:
             return None
 
