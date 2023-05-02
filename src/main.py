@@ -2,8 +2,14 @@ import os
 from glob import glob
 
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import (avg, col, mean, monotonically_increasing_id,
-                                   to_json, udf)
+from pyspark.sql.functions import (
+    avg,
+    col,
+    mean,
+    monotonically_increasing_id,
+    to_json,
+    udf,
+)
 
 from congestion_model import generate_congestion_level, simple_congestion_model
 from utils import modify_json
@@ -103,15 +109,17 @@ if __name__ == "__main__":
     run_spark_app()
 
     # Fix output file name
-    input_file = glob("./data/congestion/congestion_map/*.json")[0]
-    output_file = "./data/congestion/congestion_map/congestion_map.json"
+    input_traffic = glob("./data/congestion/congestion_map/*.json")[0]
+    output_traffic = "./data/congestion/congestion_map/congestion_map.json"
+    modify_json(input_traffic, output_traffic)
 
-    modify_json(input_file, output_file)
+    input_incident = glob("./data/incident/incident_map/*.json")[0]
+    output_incicent = "./data/incident/incident_map/incident_map.json"
+    modify_json(input_incident, output_incicent)
 
     folders_to_fix = [
         ["data/congestion/congestion_dist", "csv"],
         ["data/congestion/congestion_statistics", "json"],
-        ["data/incident/incident_map", "json"],
         ["data/incident/incident_dist", "csv"],
         ["data/weather/weather_statistics", "json"],
     ]
