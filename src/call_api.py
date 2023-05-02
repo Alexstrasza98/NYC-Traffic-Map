@@ -23,7 +23,7 @@ def get_data_async(sc):
     text_file = sc.read.text("data/coordinates_columbia.txt")
     print("Requesting traffic data...")
 
-    loop = asyncio.get_event_loop()
+    loop = asyncio.new_event_loop()
     res = loop.run_until_complete(get_traffic_data_async(text_file.rdd, "15"))
     loop.close()
     return res
