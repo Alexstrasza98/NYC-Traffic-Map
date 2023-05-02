@@ -20,7 +20,7 @@ if __name__ == "__main__":
     print("Fetching data locally...")
     traffic_data = pd.read_csv("./data/traffic_data_prefetched.csv")
 
-    used_data = traffic_data[traffic_data["frc"] == "FRC4"]
+    used_data = traffic_data[traffic_data["frc"] == "FRC4"][:1000]
     used_data["coordinates"] = used_data["coordinates"].apply(
         lambda x: json.loads(x.replace("'", '"'))
     )
