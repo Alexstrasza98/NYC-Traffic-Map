@@ -2,7 +2,7 @@ const map = tt.map({
     key: 'rTlCip82FgfXSuRLNRYHA5183Wl4mXzZ',
     container: "map",
     center: [-73.9853279, 40.7552281],
-    zoom: 13,
+    zoom: 12,
     style: `https://api.tomtom.com/style/1/style/22.2.1-9?key=rTlCip82FgfXSuRLNRYHA5183Wl4mXzZ&map=basic_night`
 })
 
@@ -25,22 +25,22 @@ async function loadCSV(filename) {
     const records = [];
 
     for (let i = 1; i < rows.length; i++) {
-      const row = rows[i].split(',');
-      const record = {};
+        const row = rows[i].split(',');
+        const record = {};
 
-      let hasMissingValues = false;
+        let hasMissingValues = false;
 
-      for (let j = 0; j < row.length; j++) {
-        if (row[j] === '') {
-            hasMissingValues = true;
-            break;
+        for (let j = 0; j < row.length; j++) {
+            if (row[j] === '') {
+                hasMissingValues = true;
+                break;
+            }
+            record[header[j]] = isNaN(row[j]) ? row[j] : Number(row[j]);
         }
-        record[header[j]] = isNaN(row[j]) ? row[j] : Number(row[j]);
-      }
-      
-      if (!hasMissingValues) {
-        records.push(record);
-      }
+
+        if (!hasMissingValues) {
+            records.push(record);
+        }
     }
 
     return records;
@@ -53,16 +53,16 @@ function handleTrafficData(trafficData, id) {
 
 function getCongestionColor(congestionLevel) {
     switch (congestionLevel) {
-      case '1':
-        return 'red';
-      case '2':
-        return 'orange';
-      case '3':
-        return 'yellow';
-      case '4':
-        return 'green';
-      default:
-        return '#999999';
+        case '1':
+            return 'red';
+        case '2':
+            return 'orange';
+        case '3':
+            return 'yellow';
+        case '4':
+            return 'green';
+        default:
+            return '#999999';
     }
 }
 
@@ -141,41 +141,41 @@ function weatherIcon(weatherType) {
 }
 
 function drawLine(id, coordinates, color, width) {
-      if (map.getLayer(id)) {
-          map.removeLayer(id);
-          map.removeSource(id);
-      }
+    if (map.getLayer(id)) {
+        map.removeLayer(id);
+        map.removeSource(id);
+    }
 
-      const lineData = {
-          type: 'Feature',
-          properties: {
-              color: color
-          },
-          geometry: {
-              type: 'LineString',
-              coordinates: coordinates
-          }
-      };
+    const lineData = {
+        type: 'Feature',
+        properties: {
+            color: color
+        },
+        geometry: {
+            type: 'LineString',
+            coordinates: coordinates
+        }
+    };
 
-      map.addSource(id, {
-          type: 'geojson',
-          data: lineData
-      });
+    map.addSource(id, {
+        type: 'geojson',
+        data: lineData
+    });
 
 
-      var layerProperties = {
-          id: id,
-          type: 'line',
-          source: id,
-          paint: {
-              'line-width': width,
-              'line-color': ['get', 'color']
-          }
-      };
+    var layerProperties = {
+        id: id,
+        type: 'line',
+        source: id,
+        paint: {
+            'line-width': width,
+            'line-color': ['get', 'color']
+        }
+    };
 
-      map.addLayer(layerProperties);
+    map.addLayer(layerProperties);
 
-      document.querySelector('#showredroads').addEventListener('change', function(event) {
+    document.querySelector('#showredroads').addEventListener('change', function (event) {
         if (color === 'red') {
             if (event.target.checked) {
                 map.setLayoutProperty(id, 'visibility', 'visible');
@@ -183,9 +183,9 @@ function drawLine(id, coordinates, color, width) {
                 map.setLayoutProperty(id, 'visibility', 'none');
             }
         }
-     });
+    });
 
-     document.querySelector('#showorangeroads').addEventListener('change', function(event) {
+    document.querySelector('#showorangeroads').addEventListener('change', function (event) {
         if (color === 'orange') {
             if (event.target.checked) {
                 map.setLayoutProperty(id, 'visibility', 'visible');
@@ -193,9 +193,9 @@ function drawLine(id, coordinates, color, width) {
                 map.setLayoutProperty(id, 'visibility', 'none');
             }
         }
-     });
+    });
 
-     document.querySelector('#showyellowroads').addEventListener('change', function(event) {
+    document.querySelector('#showyellowroads').addEventListener('change', function (event) {
         if (color === 'yellow') {
             if (event.target.checked) {
                 map.setLayoutProperty(id, 'visibility', 'visible');
@@ -203,9 +203,9 @@ function drawLine(id, coordinates, color, width) {
                 map.setLayoutProperty(id, 'visibility', 'none');
             }
         }
-     });
+    });
 
-     document.querySelector('#showgreenroads').addEventListener('change', function(event) {
+    document.querySelector('#showgreenroads').addEventListener('change', function (event) {
         if (color === 'green') {
             if (event.target.checked) {
                 map.setLayoutProperty(id, 'visibility', 'visible');
@@ -213,7 +213,7 @@ function drawLine(id, coordinates, color, width) {
                 map.setLayoutProperty(id, 'visibility', 'none');
             }
         }
-     });
+    });
 }
 
 function createMarker(type, position, color, popupText) {
@@ -232,17 +232,17 @@ function createMarker(type, position, color, popupText) {
         'url(' + incident_icon + '.png)';
     markerContentElement.appendChild(iconElement);
 
-    var popup = new tt.Popup({offset: 30}).setText(popupText);
+    var popup = new tt.Popup({ offset: 30 }).setText(popupText);
 
-    var marker = new tt.Marker({element: markerElement, anchor: 'bottom'})
+    var marker = new tt.Marker({ element: markerElement, anchor: 'bottom' })
         .setLngLat(position)
         .setPopup(popup)
         .addTo(map);
-    
-    document.querySelector('#showjam').addEventListener('change', function(event) {
+
+    document.querySelector('#showjam').addEventListener('change', function (event) {
         if (type === 6) {
             if (event.target.checked) {
-                marker = new tt.Marker({element: markerElement, anchor: 'bottom'})
+                marker = new tt.Marker({ element: markerElement, anchor: 'bottom' })
                     .setLngLat(position)
                     .setPopup(popup)
                     .addTo(map);
@@ -252,10 +252,10 @@ function createMarker(type, position, color, popupText) {
         }
     });
 
-    document.querySelector('#showroadclosed').addEventListener('change', function(event) {
+    document.querySelector('#showroadclosed').addEventListener('change', function (event) {
         if (type === 8) {
             if (event.target.checked) {
-                marker = new tt.Marker({element: markerElement, anchor: 'bottom'})
+                marker = new tt.Marker({ element: markerElement, anchor: 'bottom' })
                     .setLngLat(position)
                     .setPopup(popup)
                     .addTo(map);
@@ -265,10 +265,10 @@ function createMarker(type, position, color, popupText) {
         }
     });
 
-    document.querySelector('#showroadworking').addEventListener('change', function(event) {
+    document.querySelector('#showroadworking').addEventListener('change', function (event) {
         if (type === 9) {
             if (event.target.checked) {
-                marker = new tt.Marker({element: markerElement, anchor: 'bottom'})
+                marker = new tt.Marker({ element: markerElement, anchor: 'bottom' })
                     .setLngLat(position)
                     .setPopup(popup)
                     .addTo(map);
@@ -278,10 +278,10 @@ function createMarker(type, position, color, popupText) {
         }
     });
 
-    document.querySelector('#showother').addEventListener('change', function(event) {
+    document.querySelector('#showother').addEventListener('change', function (event) {
         if (type !== 6 && type !== 8 && type != 9) {
             if (event.target.checked) {
-                marker = new tt.Marker({element: markerElement, anchor: 'bottom'})
+                marker = new tt.Marker({ element: markerElement, anchor: 'bottom' })
                     .setLngLat(position)
                     .setPopup(popup)
                     .addTo(map);
@@ -293,15 +293,14 @@ function createMarker(type, position, color, popupText) {
 }
 
 async function fetchAndUpdateTrafficData() {
-    const trafficDataArray = await loadJSON('../data/traffic_data.json');
-    //const trafficDataArray = await loadJSONWithGlob('../data/congestion/congestion');
+    const trafficDataArray = await loadJSON('../data/congestion/congestion_map/congestion_map.json');
     trafficDataArray.forEach((trafficData, index) => {
-      handleTrafficData(trafficData, `traffic-${index}`);
+        handleTrafficData(trafficData, `traffic-${index}`);
     });
 }
 
 async function fetchAndHandleIncidentData() {
-    const incidentDataArray = await loadJSON('../data/incident_tomtom.json');
+    const incidentDataArray = await loadJSON('../data/incident/incident_map/incident_map.json');
     incidentDataArray.forEach((incidentData) => {
         const coordinate = incidentData.coordinate;
         createMarker(incidentData.incident_type, coordinate, incidentColor(incidentData.incident_type), `Incident Type: ${getIncidentType(incidentData.incident_type)}`);
@@ -309,7 +308,7 @@ async function fetchAndHandleIncidentData() {
 }
 
 async function fetchAndDisplayWeatherData() {
-    const weatherData = await loadJSON('../data/weather/weather_result/part-00000-bb54208c-627c-4d2e-a859-7416dbb955a7-c000.json');
+    const weatherData = await loadJSON('../data/weather/weather_statistics/weather_statistics.json');
 
     const averageTempElement = document.querySelector('#averagetemp');
     averageTempElement.innerHTML = `Temperature:<br>${parseFloat(weatherData.average_temp.toFixed(2))}`;
@@ -331,7 +330,7 @@ async function fetchAndDisplayWeatherData() {
 }
 
 async function fetchAndDisplayIncidentCount() {
-    const incidentStatisticData = await loadCSV('../data/incident/incident_dist/part-00000-a8bbd320-854c-4abf-8c7d-615dfa4ca911-c000.csv');
+    const incidentStatisticData = await loadCSV('../data/incident/incident_dist/incident_dist.csv');
     incidentStatisticData.sort((a, b) => a.incident_type - b.incident_type);
 
     let sum = incidentStatisticData.reduce((accumulator, currentRecord) => {
@@ -374,7 +373,7 @@ async function fetchAndDisplayIncidentCount() {
 }
 
 async function fetchAndDisplayCongestionStatistics() {
-    const congestionStatisticData = await loadCSV('../data/congestion/congestion_dist/part-00000-f6472eb1-375b-456f-81dd-49c4c1400aa9-c000.csv');
+    const congestionStatisticData = await loadCSV('../data/congestion/congestion_dist/congestion_dist.csv');
     congestionStatisticData.sort((a, b) => a.congestion_level - b.congestion_level);
     const congestionLevels = congestionStatisticData.map(record => record.congestion_level);
     const counts = congestionStatisticData.map(record => record.count);
@@ -410,7 +409,7 @@ async function fetchAndDisplayCongestionStatistics() {
 }
 
 async function fetchAndDisplayAverageSpeed() {
-    const averageSpeedData = await loadJSON('../data/congestion/average_speed_percent/part-00000-6a0918fb-a720-4fcd-832a-7070e04ae086-c000.json');
+    const averageSpeedData = await loadJSON('../data/congestion/congestion_statistics/congestion_statistics.json');
     const averageSpeed = averageSpeedData.average_speed_percent;
 
     const percentage = averageSpeed * 100;
@@ -421,29 +420,29 @@ async function fetchAndDisplayAverageSpeed() {
 
     const ctx = document.getElementById('percentage-chart').getContext('2d');
     const doughnutChart = new Chart(ctx, {
-    type: 'doughnut',
-    data: {
-        labels: ['Percentage', 'Remaining'],
-        datasets: [{
-        data: [percentage, remainingPercentage],
-        backgroundColor: ['rgba(75, 192, 192, 0.2)', '#E0E0E0'],
-        borderWidth: 1
-        }]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-            legend: {
-                display: false
-            }
+        type: 'doughnut',
+        data: {
+            labels: ['Percentage', 'Remaining'],
+            datasets: [{
+                data: [percentage, remainingPercentage],
+                backgroundColor: ['rgba(75, 192, 192, 0.2)', '#E0E0E0'],
+                borderWidth: 1
+            }]
         },
-        cutout: '80%'
-    }
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            cutout: '80%'
+        }
     });
 }
 
-map.on('load', function() {
+map.on('load', function () {
     fetchAndUpdateTrafficData();
     fetchAndHandleIncidentData();
     fetchAndDisplayWeatherData();
