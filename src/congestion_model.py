@@ -36,7 +36,7 @@ def generate_congestion_level(road_closure, free_flow_speed, current_speed):
     Generate congestion level for one piece of road segment
     """
 
-    if road_closure:
+    if road_closure == "closed":
         return 0
     else:
         return simple_congestion_model(free_flow_speed, current_speed)

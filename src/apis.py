@@ -94,66 +94,6 @@ def get_incident_data(bbox: str) -> List[Dict]:
     return all_data
 
 
-async def get_traffic_data_async(coord_rdd, zoom):
-    async with aiohttp.ClientSession() as session:
-        responses = []
-        for line in coord_rdd.map(lambda row: row[0]).collect():
-            single_response = asyncio.ensure_future(
-                single_call(session, line, zoom, TOMTOM_API_KEY)
-            )
-            responses.append(single_response)
-        tomtom = await asyncio.gather(*responses)
-    return tomtom
-
-
-async def single_call(session, coord, zoom, API_KEY):
-    url_traffic = TRAFFIC_URL.format(coord, zoom, API_KEY)
-    async with session.get(url_traffic) as response:
-        content_type = response.headers.get("content-type")
-        if content_type != "text/xml":
-            result_data = await response.json()
-            data = result_data["flowSegmentData"]
-            expected_columns = [
-                "currentSpeed",
-                "freeFlowSpeed",
-                "currentTravelTime",
-                "freeFlowTravelTime",
-                "roadClosure",
-                "coordinates",
-                "frc",
-            ]
-            # Extract traffic data
-            traffic_data = {
-                key: value for key, value in data.items() if key in expected_columns
-            }
-
-            traffic_data["coordinates"] = traffic_data["coordinates"]["coordinate"]
-
-        else:
-            # if detects xml:
-            #   scenario 1: ran out of all the requests, then probably should just finish everything. (here will it be reseted for another 15 minus?)
-            #   scenatio 2: ran out of the request for 1 second, wait 1 second.
-            # seem like the best solution is to downsample (condsidering the demo and limited requests)
-            time.sleep(1)
-        try:
-            return traffic_data
-        except:
-            return None
-
-
-async def get_weather_data_async(coord_rdd):
-    async with aiohttp.ClientSession() as session:
-        responses = []
-        for coordinate in coord_rdd.map(lambda row: row[0]).collect():
-            single_response = asyncio.ensure_future(
-                single_call_weather(session, coordinate)
-            )
-            responses.append(single_response)
-        weather = await asyncio.gather(*responses)
-
-    return weather
-
-
 async def single_call_weather(session, coordinate: List[Tuple]) -> List[Dict]:
     lat, lon = coordinate.split(",")
     url_weather = WEARTHER_URL.format(lat, lon, WEATHER_API_KEY)
@@ -185,3 +125,66 @@ async def single_call_weather(session, coordinate: List[Tuple]) -> List[Dict]:
             return weather_data
         except:
             return None
+
+
+async def single_call(session, coord, zoom, API_KEY):
+    url_traffic = TRAFFIC_URL.format(coord, zoom, API_KEY)
+    async with session.get(url_traffic) as response:
+        content_type = response.headers.get("content-type")
+        if content_type != "text/xml":
+            result_data = await response.json()
+            data = result_data["flowSegmentData"]
+            expected_columns = [
+                "currentSpeed",
+                "freeFlowSpeed",
+                "currentTravelTime",
+                "freeFlowTravelTime",
+                "roadClosure",
+                "coordinates",
+                "frc",
+            ]
+            # Extract traffic data
+            traffic_data = {
+                key: value for key, value in data.items() if key in expected_columns
+            }
+
+            traffic_data["coordinates"] = traffic_data["coordinates"]["coordinate"]
+            traffic_data["roadClosure"] = (
+                "closed" if traffic_data["roadClosure"] else "not"
+            )
+
+        else:
+            # if detects xml:
+            #   scenario 1: ran out of all the requests, then probably should just finish everything. (here will it be reseted for another 15 minus?)
+            #   scenatio 2: ran out of the request for 1 second, wait 1 second.
+            # seem like the best solution is to downsample (condsidering the demo and limited requests)
+            time.sleep(1)
+        try:
+            return traffic_data
+        except:
+            return None
+
+
+async def get_weather_data_async(coord_rdd):
+    async with aiohttp.ClientSession() as session:
+        responses = []
+        for coordinate in coord_rdd.map(lambda row: row[0]).collect():
+            single_response = asyncio.ensure_future(
+                single_call_weather(session, coordinate)
+            )
+            responses.append(single_response)
+        weather = await asyncio.gather(*responses)
+
+    return weather
+
+
+async def get_traffic_data_async(coord_rdd, zoom):
+    async with aiohttp.ClientSession() as session:
+        responses = []
+        for line in coord_rdd.map(lambda row: row[0]).collect():
+            single_response = asyncio.ensure_future(
+                single_call(session, line, zoom, TOMTOM_API_KEY)
+            )
+            responses.append(single_response)
+        tomtom = await asyncio.gather(*responses)
+    return tomtom

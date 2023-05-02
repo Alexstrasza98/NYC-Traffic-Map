@@ -1,8 +1,9 @@
 import os
 from glob import glob
 from pprint import pprint
+from datetime import datetime
+from time import sleep
 
-from pyspark import SparkContext
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import (
     avg,
@@ -15,16 +16,14 @@ from pyspark.sql.functions import (
 
 from call_api import get_data_async, get_incident_middlefile, get_weather_async
 from congestion_model import generate_congestion_level, simple_congestion_model
-from utils import modify_json, write_json
+from utils import modify_jsons, write_json
 
 
-def run_spark_app():
+def run_spark_app(spark):
     """
     Main function to run spark app, reading in speed info and writing congestion info into database
     """
-    spark = (
-        SparkSession.builder.master("local[*]").appName("NYC-Traffic-Map").getOrCreate()
-    )
+    sc = spark.sparkContext
 
     # 1st step
     # spark reading in speed information get from TomTom API
@@ -32,10 +31,6 @@ def run_spark_app():
     weather_data = get_weather_async(spark)
     incidents_data = get_incident_middlefile()
 
-    # TODO: figure out if we can request data from TomTom API and send to Spark directly,
-    # or if we need to save the data first (file or database...)
-    # speed_df = spark.read.option("multiline", "true").json("data/traffic_tomtom.json")
-    sc = SparkContext.getOrCreate()
     speed_df = spark.createDataFrame(spark.read.json(sc.parallelize(speed_data)).rdd)
 
     weather_df = spark.createDataFrame(
@@ -106,11 +101,6 @@ def run_spark_app():
 
     weather_result.write.json("data/weather/weather_statistics", mode="overwrite")
 
-    # TODO: does it mean we need three processers, one for calling TomTom, one for Spark, one for frontend?
-    # or we can have one processer for calling TomTom and Spark, and another processer for frontend?
-
-    # congestion_df.awaitTermination()
-
 
 def fix_file_name(folder_path, file_format):
     input_file_name = glob(os.path.join(folder_path, f"*.{file_format}"))[0]
@@ -119,23 +109,34 @@ def fix_file_name(folder_path, file_format):
 
 
 if __name__ == "__main__":
-    run_spark_app()
+    spark = (
+        SparkSession.builder.master("local[*]").appName("NYC-Traffic-Map").getOrCreate()
+    )
+    spark.sparkContext.setLogLevel("WARN")
 
-    # Fix output file name
-    input_traffic = glob("./data/congestion/congestion_map/*.json")[0]
-    output_traffic = "./data/congestion/congestion_map/congestion_map.json"
-    modify_json(input_traffic, output_traffic)
+    while True:
+        current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        print(f"Start processing at {current_time}")
 
-    input_incident = glob("./data/incident/incident_map/*.json")[0]
-    output_incicent = "./data/incident/incident_map/incident_map.json"
-    modify_json(input_incident, output_incicent)
+        run_spark_app(spark)
 
-    folders_to_fix = [
-        ["data/congestion/congestion_dist", "csv"],
-        ["data/congestion/congestion_statistics", "json"],
-        ["data/incident/incident_dist", "csv"],
-        ["data/weather/weather_statistics", "json"],
-    ]
+        # Fix output file name
+        input_traffic = glob("./data/congestion/congestion_map/*.json")
+        output_traffic = "./data/congestion/congestion_map/congestion_map.json"
+        modify_jsons(input_traffic, output_traffic)
 
-    for folder_path, file_format in folders_to_fix:
-        fix_file_name(folder_path, file_format)
+        input_incident = glob("./data/incident/incident_map/*.json")
+        output_incicent = "./data/incident/incident_map/incident_map.json"
+        modify_jsons(input_incident, output_incicent)
+
+        folders_to_fix = [
+            ["data/congestion/congestion_dist", "csv"],
+            ["data/congestion/congestion_statistics", "json"],
+            ["data/incident/incident_dist", "csv"],
+            ["data/weather/weather_statistics", "json"],
+        ]
+
+        for folder_path, file_format in folders_to_fix:
+            fix_file_name(folder_path, file_format)
+
+        sleep(1)
