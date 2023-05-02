@@ -450,4 +450,3 @@ map.on('load', function () {
     fetchAndDisplayCongestionStatistics();
     fetchAndDisplayAverageSpeed();
 });
-setInterval(fetchAndUpdateTrafficData, 300000);
