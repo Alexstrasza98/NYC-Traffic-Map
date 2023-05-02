@@ -1,7 +1,7 @@
 from apis import get_weather_data
 from utils import write_json
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # Requesting weather data
     print("Requesting weather data...")
     with open("./data/coordinates_manhattan.txt", "r") as f:

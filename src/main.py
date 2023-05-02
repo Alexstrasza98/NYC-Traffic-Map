@@ -1,14 +1,9 @@
 import os
-from pyspark.sql import SparkSession
-from pyspark.sql.functions import (
-    avg,
-    col,
-    mean,
-    monotonically_increasing_id,
-    to_json,
-    udf,
-)
 from glob import glob
+
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import (avg, col, mean, monotonically_increasing_id,
+                                   to_json, udf)
 
 from congestion_model import generate_congestion_level, simple_congestion_model
 from utils import modify_json
@@ -105,7 +100,6 @@ def fix_file_name(folder_path, file_format):
 
 
 if __name__ == "__main__":
-    print(1000)
     run_spark_app()
 
     # Fix output file name
