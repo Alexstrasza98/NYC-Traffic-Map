@@ -216,6 +216,8 @@ function drawLine(id, coordinates, color, width) {
     });
 }
 
+let markerlist = [];
+
 function createMarker(type, position, color, popupText) {
     var markerElement = document.createElement('div');
     markerElement.className = 'marker';
@@ -238,6 +240,8 @@ function createMarker(type, position, color, popupText) {
         .setLngLat(position)
         .setPopup(popup)
         .addTo(map);
+
+    markerlist.push(marker);
 
     document.querySelector('#showjam').addEventListener('change', function (event) {
         if (type === 6) {
@@ -292,11 +296,18 @@ function createMarker(type, position, color, popupText) {
     });
 }
 
+function removeAllMarkers() {
+    for (let marker of markerlist) {
+        marker.remove();
+    }
+}
+
 async function fetchAndUpdateTrafficData() {
     const trafficDataArray = await loadJSON('../data/congestion/congestion_map/congestion_map.json');
     trafficDataArray.forEach((trafficData, index) => {
         handleTrafficData(trafficData, `traffic-${index}`);
     });
+    removeAllMarkers();
 }
 
 async function fetchAndHandleIncidentData() {
@@ -442,12 +453,19 @@ async function fetchAndDisplayAverageSpeed() {
     });
 }
 
-map.on('load', function () {
+function fetchDataAndUpdateMap() {
     fetchAndUpdateTrafficData();
     fetchAndHandleIncidentData();
     fetchAndDisplayWeatherData();
     fetchAndDisplayIncidentCount();
     fetchAndDisplayCongestionStatistics();
     fetchAndDisplayAverageSpeed();
+}
+
+map.on('load', function () {
+    fetchDataAndUpdateMap();
+    setInterval(fetchDataAndUpdateMap, 10000);
 });
-setInterval(fetchAndUpdateTrafficData, 300000);
+
+
+

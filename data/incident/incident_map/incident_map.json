@@ -9,56 +9,72 @@
     },
     {
         "coordinate": [
-            -73.9792957003,
-            40.7818186497
+            -73.9811652,
+            40.7843506561
         ],
         "geometry_type": "LineString",
         "incident_type": 6
     },
     {
         "coordinate": [
-            -73.9799742992,
-            40.7838410257
+            -73.97856748059999,
+            40.78281375565
         ],
         "geometry_type": "LineString",
         "incident_type": 6
     },
     {
         "coordinate": [
-            -73.9472781713,
-            40.8043585829
-        ],
-        "geometry_type": "LineString",
-        "incident_type": 0
-    },
-    {
-        "coordinate": [
-            -73.9462361331,
-            40.7922953695
+            -73.9740627105,
+            40.7839013819
         ],
         "geometry_type": "LineString",
         "incident_type": 6
     },
     {
         "coordinate": [
-            -73.962082624,
-            40.7548584611
-        ],
-        "geometry_type": "LineString",
-        "incident_type": 9
-    },
-    {
-        "coordinate": [
-            -73.9384121294,
-            40.8056748928
+            -73.9438201333,
+            40.7956159459
         ],
         "geometry_type": "LineString",
         "incident_type": 6
     },
     {
         "coordinate": [
-            -73.934659719,
-            40.8065861495
+            -73.9414255912,
+            40.8020371644
+        ],
+        "geometry_type": "LineString",
+        "incident_type": 6
+    },
+    {
+        "coordinate": [
+            -73.9391658301,
+            40.8051055969
+        ],
+        "geometry_type": "LineString",
+        "incident_type": 6
+    },
+    {
+        "coordinate": [
+            -73.9375270004,
+            40.8042419048
+        ],
+        "geometry_type": "LineString",
+        "incident_type": 6
+    },
+    {
+        "coordinate": [
+            -73.9347710307,
+            40.8041373448
+        ],
+        "geometry_type": "LineString",
+        "incident_type": 6
+    },
+    {
+        "coordinate": [
+            -73.93845638585,
+            40.79607459525
         ],
         "geometry_type": "LineString",
         "incident_type": 6
@@ -81,72 +97,56 @@
     },
     {
         "coordinate": [
-            -73.93387785505,
-            40.80718163495
+            -73.9340870674,
+            40.806895312799995
         ],
         "geometry_type": "LineString",
         "incident_type": 6
     },
     {
         "coordinate": [
-            -73.942603081,
-            40.7767439379
+            -73.9325152929,
+            40.8056996999
         ],
         "geometry_type": "LineString",
         "incident_type": 6
     },
     {
         "coordinate": [
-            -73.97167085065,
-            40.78211101425
+            -73.9425252969,
+            40.7840140339
         ],
         "geometry_type": "LineString",
         "incident_type": 6
     },
     {
         "coordinate": [
-            -73.9708936806,
-            40.7984389577
+            -73.9639963801,
+            40.8080640679
         ],
         "geometry_type": "LineString",
         "incident_type": 6
     },
     {
         "coordinate": [
-            -73.9699777062,
-            40.7996996117
-        ],
-        "geometry_type": "LineString",
-        "incident_type": 0
-    },
-    {
-        "coordinate": [
-            -73.9663191731,
-            40.792355718
+            -73.96356454445001,
+            40.7772119848
         ],
         "geometry_type": "LineString",
         "incident_type": 6
     },
     {
         "coordinate": [
-            -73.963276207,
-            40.7776317262
-        ],
-        "geometry_type": "LineString",
-        "incident_type": 6
-    },
-    {
-        "coordinate": [
-            -73.95727543485,
-            40.78436607815
+            -73.95674167525,
+            40.78496353995
         ],
         "geometry_type": "LineString",
         "incident_type": 8
     },
     {
         "coordinate": [
-            -73.95674167525,
-            40.78496353995
+            -73.9571580882,
+            40.784318479
         ],
         "geometry_type": "LineString",
         "incident_type": 8
@@ -161,8 +161,56 @@
     },
     {
         "coordinate": [
-            -73.95372486069999,
-            40.790673998550005
+            -73.9544410105,
+            40.7890431965
+        ],
+        "geometry_type": "LineString",
+        "incident_type": 6
+    },
+    {
+        "coordinate": [
+            -73.9612404103,
+            40.7801489769
+        ],
+        "geometry_type": "LineString",
+        "incident_type": 6
+    },
+    {
+        "coordinate": [
+            -73.9524655635,
+            40.7915095015
+        ],
+        "geometry_type": "LineString",
+        "incident_type": 6
+    },
+    {
+        "coordinate": [
+            -73.9515026505,
+            40.793740386500005
+        ],
+        "geometry_type": "LineString",
+        "incident_type": 6
+    },
+    {
+        "coordinate": [
+            -73.9478950794,
+            40.7929967666
+        ],
+        "geometry_type": "LineString",
+        "incident_type": 6
+    },
+    {
+        "coordinate": [
+            -73.9472781713,
+            40.8043585829
+        ],
+        "geometry_type": "LineString",
+        "incident_type": 0
+    },
+    {
+        "coordinate": [
+            -73.948750704,
+            40.7915832405
         ],
         "geometry_type": "LineString",
         "incident_type": 6
@@ -185,56 +233,80 @@
     },
     {
         "coordinate": [
-            -73.9358184333,
-            40.8070247385
+            -73.9348488147,
+            40.8066733219
         ],
         "geometry_type": "LineString",
         "incident_type": 6
     },
     {
         "coordinate": [
-            -73.9508817191,
-            40.7790532926
+            -73.93424330605,
+            40.8074645934
         ],
         "geometry_type": "LineString",
         "incident_type": 6
     },
     {
         "coordinate": [
-            -73.9478950794,
-            40.7929967666
+            -73.9468624289,
+            40.79461211485
         ],
         "geometry_type": "LineString",
         "incident_type": 6
     },
     {
         "coordinate": [
-            -73.9486380513,
-            40.79219678735
+            -73.9437041278,
+            40.7911339518
         ],
         "geometry_type": "LineString",
         "incident_type": 6
     },
     {
         "coordinate": [
-            -73.9716017838,
-            40.7836961961
+            -73.962082624,
+            40.7548584611
+        ],
+        "geometry_type": "LineString",
+        "incident_type": 9
+    },
+    {
+        "coordinate": [
+            -73.94256687115,
+            40.78733797555
         ],
         "geometry_type": "LineString",
         "incident_type": 6
     },
     {
         "coordinate": [
-            -73.9738025363,
-            40.7837927915
+            -73.97358863004999,
+            40.7870845343
         ],
         "geometry_type": "LineString",
         "incident_type": 6
     },
     {
         "coordinate": [
-            -73.9729066784,
-            40.785487916449995
+            -73.97125711985001,
+            40.78521568325
+        ],
+        "geometry_type": "LineString",
+        "incident_type": 6
+    },
+    {
+        "coordinate": [
+            -73.9699777062,
+            40.7996996117
+        ],
+        "geometry_type": "LineString",
+        "incident_type": 0
+    },
+    {
+        "coordinate": [
+            -73.9680103059,
+            40.7921961212
         ],
         "geometry_type": "LineString",
         "incident_type": 6

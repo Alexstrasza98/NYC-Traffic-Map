@@ -138,5 +138,3 @@ if __name__ == "__main__":
 
         for folder_path, file_format in folders_to_fix:
             fix_file_name(folder_path, file_format)
-
-        sleep(1)
