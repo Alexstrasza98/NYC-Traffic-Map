@@ -1,53 +1,208 @@
 <html>
-  <head>
-    <link
-      rel="stylesheet"
-      type="text/css"
-      href="https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.23.0/maps/maps.css"
-    />
-    <link rel='stylesheet' type='text/css' href='index.css'/>
-    <script type="text/javascript" src="https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.23.0/maps/maps-web.min.js"></script>
-  </head>
-  <style>
-      .marker-icon {
-          background-position: center;
-          background-size: 22px 22px;
-          border-radius: 50%;
-          height: 22px;
-          left: 4px;
-          position: absolute;
-          text-align: center;
-          top: 3px;
-          transform: rotate(45deg);
-          width: 22px;
-      }
-      .marker {
-          height: 30px;
-          width: 30px;
-      }
-      .marker-content {
-          background: #c30b82;
-          border-radius: 50% 50% 50% 0;
-          height: 30px;
-          left: 50%;
-          margin: -15px 0 0 -15px;
-          position: absolute;
-          top: 50%;
-          transform: rotate(-45deg);
-          width: 30px;
-      }
-      .marker-content::before {
-          background: #ffffff;
-          border-radius: 50%;
-          content: "";
-          height: 24px;
-          margin: 3px 0 0 3px;
-          position: absolute;
-          width: 24px;
-      }
-  </style>
-  <body>
-    <div id="map" style="width: 100%; height: 100%"></div>
-    <script src="app.js"></script>
-  </body>
+
+<head>
+  <meta http-equiv="pragma" content="no-cache" />
+  <link rel="stylesheet" type="text/css" href="https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.23.0/maps/maps.css" />
+  <link rel='stylesheet' type='text/css' href='index.css' />
+  <script type="text/javascript"
+    src="https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.23.0/maps/maps-web.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <meta http-equiv="pragma" content="no-cache" />
+</head>
+<style>
+  .marker-icon {
+    background-position: center;
+    background-size: 22px 22px;
+    border-radius: 50%;
+    height: 22px;
+    left: 4px;
+    position: absolute;
+    text-align: center;
+    top: 3px;
+    transform: rotate(45deg);
+    width: 22px;
+  }
+
+  .marker {
+    height: 30px;
+    width: 30px;
+  }
+
+  .marker-content {
+    background: #c30b82;
+    border-radius: 50% 50% 50% 0;
+    height: 30px;
+    left: 50%;
+    margin: -15px 0 0 -15px;
+    position: absolute;
+    top: 50%;
+    transform: rotate(-45deg);
+    width: 30px;
+  }
+
+  .marker-content::before {
+    background: #ffffff;
+    border-radius: 50%;
+    content: "";
+    height: 24px;
+    margin: 3px 0 0 3px;
+    position: absolute;
+    width: 24px;
+  }
+
+  #trafficlayer {
+    background-color: rgba(255, 255, 255, 0.65);
+  }
+
+  #averagespeed {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 10vh;
+    margin: 0;
+    background-color: rgba(0, 0, 0, 0.8);
+  }
+
+  #averagespeeddata {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    margin: 0;
+  }
+
+  #congestionstatistics,
+  #incidentstatistics {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    height: 60vh;
+    margin: 0;
+    background-color: rgba(0, 0, 0, 0.8);
+  }
+
+  #weather {
+    background-color: rgba(0, 0, 0, 0.8);
+  }
+
+  .chart-container {
+    max-width: 200px;
+    max-height: 200px;
+  }
+
+  .corner-text {
+    position: absolute;
+    padding: 5px;
+    color: rgba(75, 192, 192, 0.9);
+  }
+
+  .top-left {
+    top: 0;
+    left: 0;
+  }
+
+  .top-right {
+    top: 0;
+    right: 0;
+  }
+
+  .bottom-left {
+    bottom: 0;
+    left: 0;
+  }
+
+  .bottom-right {
+    bottom: 0;
+    right: 0;
+  }
+
+  .bottom-center {
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .top-center {
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .center-image {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+</style>
+
+<body>
+  <script type='text/javascript' src='tail.select.min.js'></script>
+  <div id="map" style="width: 100%; height: 100%">
+    <div class='tt-overlay-panel -left-top -medium js-foldable' id="trafficlayer" style='width: 200px;'>
+      <div class='tt-form'>
+        <div class='tt-spacing-top-24'>
+          <label class='tt-form-label'>Traffic layers</label>
+          <input type='checkbox' class='tt-checkbox' id='showjam' checked='true'>
+          <label class='tt-label' for="showjam">Show_Jam</label>
+          <input type='checkbox' class='tt-checkbox' id='showroadclosed' checked='true'>
+          <label class='tt-label' for="showroadclosed">Show_Road_Closed</label>
+          <input type='checkbox' class='tt-checkbox' id='showroadworking' checked='true'>
+          <label class='tt-label' for="showroadworking">Show_Road_Working</label>
+          <input type='checkbox' class='tt-checkbox' id='showother' checked='true'>
+          <label class='tt-label' for="showother">Show_Other</label>
+          <input type='checkbox' class='tt-checkbox' id='showredroads' checked='true'>
+          <label class='tt-label' for="showredroads">Show_Red_Roads</label>
+          <input type='checkbox' class='tt-checkbox' id='showorangeroads' checked='true'>
+          <label class='tt-label' for="showorangeroads">Show_Orange_Roads</label>
+          <input type='checkbox' class='tt-checkbox' id='showyellowroads' checked='true'>
+          <label class='tt-label' for="showyellowroads">Show_Yellow_Roads</label>
+          <input type='checkbox' class='tt-checkbox' id='showgreenroads' checked='true'>
+          <label class='tt-label' for="showgreenroads">Show_Green_Roads</label>
+        </div>
+      </div>
+    </div>
+    <div class='tt-overlay-panel -right-1 -medium js-foldable' id="averagespeed" style='width: 200px; height: 320px'>
+      <h5 class="corner-text" id="averagespeeddata"></h5>
+      <div class='tt-spacing-top-24'>
+        <div class="chart-container">
+          <canvas id="percentage-chart"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class='tt-overlay-panel -right-2 -medium js-foldable' id="congestionstatistics"
+      style='width: 200px; height: 200px'>
+      <h4 class="corner-text">Congestion Level</h4>
+      <div class='tt-spacing-top-24'>
+        <div class="chart-container">
+          <canvas id="congestionhistogram"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class='tt-overlay-panel -right-3 -medium js-foldable' id="incidentstatistics"
+      style='width: 200px; height: 200px'>
+      <h4 class="corner-text" id="totalincident"></h4>
+      <div class='tt-spacing-top-24'>
+        <div class="chart-container">
+          <canvas id="incidenthistogram"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class='tt-overlay-panel -left-bottom -medium js-foldable' id="weather" style='width: 200px; height: 200px'>
+      <div class='tt-spacing-top-24'>
+        <div class="corner-text top-left" id="averagetemp"></div>
+        <div class="corner-text top-right" id="averagehumidity"></div>
+        <div class="corner-text bottom-left" id="averagerain"></div>
+        <div class="corner-text bottom-right" id="averagevisibility"></div>
+        <div class="corner-text bottom-center" id="averagewindspeed"></div>
+        <img class="center-image" id="dynamicImage" alt="Weather Image">
+      </div>
+    </div>
+  </div>
+  <script type='text/javascript' src='foldable.js'></script>
+  <script src="app.js"></script>
+</body>
+
 </html>

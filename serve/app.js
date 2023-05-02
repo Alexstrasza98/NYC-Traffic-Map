@@ -1,35 +1,68 @@
 const map = tt.map({
     key: 'rTlCip82FgfXSuRLNRYHA5183Wl4mXzZ',
     container: "map",
-    center: [-73.9712, 40.7831],
-    zoom: 15,
+    center: [-73.9853279, 40.7552281],
+    zoom: 12,
+    style: `https://api.tomtom.com/style/1/style/22.2.1-9?key=rTlCip82FgfXSuRLNRYHA5183Wl4mXzZ&map=basic_night`
 })
 
 map.addControl(new tt.FullscreenControl());
 map.addControl(new tt.NavigationControl());
+
+new Foldable('.js-foldable', 'top-right');
 
 async function loadJSON(filename) {
     const response = await fetch(filename);
     return await response.json();
 }
 
+async function loadCSV(filename) {
+    const response = await fetch(filename);
+    const data = await response.text();
+    const rows = data.split('\n');
+
+    const header = rows[0].split(',');
+    const records = [];
+
+    for (let i = 1; i < rows.length; i++) {
+        const row = rows[i].split(',');
+        const record = {};
+
+        let hasMissingValues = false;
+
+        for (let j = 0; j < row.length; j++) {
+            if (row[j] === '') {
+                hasMissingValues = true;
+                break;
+            }
+            record[header[j]] = isNaN(row[j]) ? row[j] : Number(row[j]);
+        }
+
+        if (!hasMissingValues) {
+            records.push(record);
+        }
+    }
+
+    return records;
+}
+
 function handleTrafficData(trafficData, id) {
     const coordinates = trafficData.coordinates.map(coordinate => [coordinate.longitude, coordinate.latitude]);
-    drawLine(id, coordinates, getCongestionColor(trafficData.congestion_level), 5);
+    drawLine(id, coordinates, getCongestionColor(trafficData.congestion_level), 3);
 }
 
 function getCongestionColor(congestionLevel) {
     switch (congestionLevel) {
-      case '1':
-        return 'red';
-      case '2':
-        return 'orange';
-      case '3':
-        return 'yellow';
-      case '4':
-        return 'green';
-      default:
-        return 'blue';
+        case '1':
+            return 'red';
+        case '2':
+            return 'orange';
+        case '3':
+            return 'yellow';
+        case '4':
+            return 'green';
+        default:
+            return '#999999';
     }
 }
 
@@ -54,7 +87,7 @@ function getIncidentType(incidentType) {
         case 8:
             return 'Road Closed';
         case 9:
-            return 'Road Works';
+            return 'Road Working';
         case 10:
             return 'Wind';
         case 11:
@@ -90,40 +123,97 @@ function incidentIcon(incidentType) {
     }
 }
 
+function weatherIcon(weatherType) {
+    switch (weatherType) {
+        case "Clouds":
+            return '02';
+        case "Clear":
+            return '01';
+        case "Snow":
+            return '13';
+        case "Rain":
+            return '10';
+        case "Thunderstorm":
+            return '11';
+        case "Mist":
+            return '50';
+    }
+}
+
 function drawLine(id, coordinates, color, width) {
-      if (map.getLayer(id)) {
-          map.removeLayer(id);
-          map.removeSource(id);
-      }
+    if (map.getLayer(id)) {
+        map.removeLayer(id);
+        map.removeSource(id);
+    }
 
-      const lineData = {
-          type: 'Feature',
-          properties: {
-              color: color
-          },
-          geometry: {
-              type: 'LineString',
-              coordinates: coordinates
-          }
-      };
+    const lineData = {
+        type: 'Feature',
+        properties: {
+            color: color
+        },
+        geometry: {
+            type: 'LineString',
+            coordinates: coordinates
+        }
+    };
 
-      map.addSource(id, {
-          type: 'geojson',
-          data: lineData
-      });
+    map.addSource(id, {
+        type: 'geojson',
+        data: lineData
+    });
 
 
-      var layerProperties = {
-          id: id,
-          type: 'line',
-          source: id,
-          paint: {
-              'line-width': width,
-              'line-color': ['get', 'color']
-          }
-      };
+    var layerProperties = {
+        id: id,
+        type: 'line',
+        source: id,
+        paint: {
+            'line-width': width,
+            'line-color': ['get', 'color']
+        }
+    };
 
-      map.addLayer(layerProperties);
+    map.addLayer(layerProperties);
+
+    document.querySelector('#showredroads').addEventListener('change', function (event) {
+        if (color === 'red') {
+            if (event.target.checked) {
+                map.setLayoutProperty(id, 'visibility', 'visible');
+            } else {
+                map.setLayoutProperty(id, 'visibility', 'none');
+            }
+        }
+    });
+
+    document.querySelector('#showorangeroads').addEventListener('change', function (event) {
+        if (color === 'orange') {
+            if (event.target.checked) {
+                map.setLayoutProperty(id, 'visibility', 'visible');
+            } else {
+                map.setLayoutProperty(id, 'visibility', 'none');
+            }
+        }
+    });
+
+    document.querySelector('#showyellowroads').addEventListener('change', function (event) {
+        if (color === 'yellow') {
+            if (event.target.checked) {
+                map.setLayoutProperty(id, 'visibility', 'visible');
+            } else {
+                map.setLayoutProperty(id, 'visibility', 'none');
+            }
+        }
+    });
+
+    document.querySelector('#showgreenroads').addEventListener('change', function (event) {
+        if (color === 'green') {
+            if (event.target.checked) {
+                map.setLayoutProperty(id, 'visibility', 'visible');
+            } else {
+                map.setLayoutProperty(id, 'visibility', 'none');
+            }
+        }
+    });
 }
 
 function createMarker(type, position, color, popupText) {
@@ -142,31 +232,222 @@ function createMarker(type, position, color, popupText) {
         'url(' + incident_icon + '.png)';
     markerContentElement.appendChild(iconElement);
 
-    var popup = new tt.Popup({offset: 30}).setText(popupText);
+    var popup = new tt.Popup({ offset: 30 }).setText(popupText);
 
-    new tt.Marker({element: markerElement, anchor: 'bottom'})
+    var marker = new tt.Marker({ element: markerElement, anchor: 'bottom' })
         .setLngLat(position)
         .setPopup(popup)
         .addTo(map);
+
+    document.querySelector('#showjam').addEventListener('change', function (event) {
+        if (type === 6) {
+            if (event.target.checked) {
+                marker = new tt.Marker({ element: markerElement, anchor: 'bottom' })
+                    .setLngLat(position)
+                    .setPopup(popup)
+                    .addTo(map);
+            } else {
+                marker.remove();
+            }
+        }
+    });
+
+    document.querySelector('#showroadclosed').addEventListener('change', function (event) {
+        if (type === 8) {
+            if (event.target.checked) {
+                marker = new tt.Marker({ element: markerElement, anchor: 'bottom' })
+                    .setLngLat(position)
+                    .setPopup(popup)
+                    .addTo(map);
+            } else {
+                marker.remove();
+            }
+        }
+    });
+
+    document.querySelector('#showroadworking').addEventListener('change', function (event) {
+        if (type === 9) {
+            if (event.target.checked) {
+                marker = new tt.Marker({ element: markerElement, anchor: 'bottom' })
+                    .setLngLat(position)
+                    .setPopup(popup)
+                    .addTo(map);
+            } else {
+                marker.remove();
+            }
+        }
+    });
+
+    document.querySelector('#showother').addEventListener('change', function (event) {
+        if (type !== 6 && type !== 8 && type != 9) {
+            if (event.target.checked) {
+                marker = new tt.Marker({ element: markerElement, anchor: 'bottom' })
+                    .setLngLat(position)
+                    .setPopup(popup)
+                    .addTo(map);
+            } else {
+                marker.remove();
+            }
+        }
+    });
 }
 
 async function fetchAndUpdateTrafficData() {
-    const trafficDataArray = await loadJSON('../data/traffic_data.json');
+    const trafficDataArray = await loadJSON('../data/congestion/congestion_map/congestion_map.json');
     trafficDataArray.forEach((trafficData, index) => {
-      handleTrafficData(trafficData, `traffic-${index}`);
+        handleTrafficData(trafficData, `traffic-${index}`);
     });
 }
 
 async function fetchAndHandleIncidentData() {
-    const incidentDataArray = await loadJSON('../data/incident_tomtom.json');
+    const incidentDataArray = await loadJSON('../data/incident/incident_map/incident_map.json');
     incidentDataArray.forEach((incidentData) => {
         const coordinate = incidentData.coordinate;
         createMarker(incidentData.incident_type, coordinate, incidentColor(incidentData.incident_type), `Incident Type: ${getIncidentType(incidentData.incident_type)}`);
     });
 }
 
-map.on('load', function() {
+async function fetchAndDisplayWeatherData() {
+    const weatherData = await loadJSON('../data/weather/weather_statistics/weather_statistics.json');
+
+    const averageTempElement = document.querySelector('#averagetemp');
+    averageTempElement.innerHTML = `Temperature:<br>${parseFloat(weatherData.average_temp.toFixed(2))}`;
+
+    const averageHumidityElement = document.querySelector('#averagehumidity');
+    averageHumidityElement.innerHTML = `Humidity:<br>${parseFloat(weatherData.average_humidity.toFixed(2))}`;
+
+    const averageRain = document.querySelector('#averagerain');
+    averageRain.innerHTML = `Rain:<br>${parseFloat(weatherData.average_rain.toFixed(2))}`;
+
+    const averageVisibility = document.querySelector('#averagevisibility');
+    averageVisibility.innerHTML = `Visibility:<br>${parseFloat(weatherData.average_visibility.toFixed(2))}`;
+
+    const averageWindSpeed = document.querySelector('#averagewindspeed');
+    averageWindSpeed.innerHTML = `Wind Speed:<br>${parseFloat(weatherData.average_wind_speed.toFixed(2))}`;
+
+    const imageElement = document.querySelector('#dynamicImage');
+    imageElement.src = `https://openweathermap.org/img/wn/${weatherIcon(weatherData.weather)}d@2x.png`;
+}
+
+async function fetchAndDisplayIncidentCount() {
+    const incidentStatisticData = await loadCSV('../data/incident/incident_dist/incident_dist.csv');
+    incidentStatisticData.sort((a, b) => a.incident_type - b.incident_type);
+
+    let sum = incidentStatisticData.reduce((accumulator, currentRecord) => {
+        return accumulator + currentRecord.count;
+    }, 0);
+    const incidentCountElement = document.querySelector('#totalincident');
+    incidentCountElement.textContent = `Total Incidents: ${sum}`;
+
+    const incidentTypes = incidentStatisticData.map(record => record.incident_type);
+    const counts = incidentStatisticData.map(record => record.count);
+
+    const ctx = document.getElementById('incidenthistogram').getContext('2d');
+    const histogram = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: incidentTypes,
+            datasets: [{
+                label: 'Incident Count',
+                data: counts,
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            },
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+}
+
+async function fetchAndDisplayCongestionStatistics() {
+    const congestionStatisticData = await loadCSV('../data/congestion/congestion_dist/congestion_dist.csv');
+    congestionStatisticData.sort((a, b) => a.congestion_level - b.congestion_level);
+    const congestionLevels = congestionStatisticData.map(record => record.congestion_level);
+    const counts = congestionStatisticData.map(record => record.count);
+
+    const ctx = document.getElementById('congestionhistogram').getContext('2d');
+    const histogram = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: congestionLevels,
+            datasets: [{
+                label: 'Congestion Level',
+                data: counts,
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            },
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+}
+
+async function fetchAndDisplayAverageSpeed() {
+    const averageSpeedData = await loadJSON('../data/congestion/congestion_statistics/congestion_statistics.json');
+    const averageSpeed = averageSpeedData.average_speed_percent;
+
+    const percentage = averageSpeed * 100;
+    const remainingPercentage = 100 - percentage;
+
+    const averageSpeedElement = document.querySelector('#averagespeeddata');
+    averageSpeedElement.innerHTML = `Average Speed:${parseFloat(percentage.toFixed(2))}%`;
+
+    const ctx = document.getElementById('percentage-chart').getContext('2d');
+    const doughnutChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Percentage', 'Remaining'],
+            datasets: [{
+                data: [percentage, remainingPercentage],
+                backgroundColor: ['rgba(75, 192, 192, 0.2)', '#E0E0E0'],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            cutout: '80%'
+        }
+    });
+}
+
+map.on('load', function () {
     fetchAndUpdateTrafficData();
     fetchAndHandleIncidentData();
+    fetchAndDisplayWeatherData();
+    fetchAndDisplayIncidentCount();
+    fetchAndDisplayCongestionStatistics();
+    fetchAndDisplayAverageSpeed();
 });
 setInterval(fetchAndUpdateTrafficData, 300000);

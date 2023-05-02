@@ -9,9 +9,11 @@ import requests
 from dotenv import load_dotenv
 from tqdm import tqdm
 
+from utils import get_centerpoint
+
 load_dotenv()
 
-API_KEY = os.getenv("TOMTOM_API_KEY")
+TOMTOM_API_KEY = os.getenv("TOMTOM_API_KEY")
 WEATHER_API_KEY = os.getenv("WEATHER_API_KEY")
 TRAFFIC_URL = "https://api.tomtom.com/traffic/services/4/flowSegmentData/absolute/10/json?point={}&zoom={}&key={}"
 INCIDENT_URL = "https://api.tomtom.com/traffic/services/5/incidentDetails?key={}&bbox={}&language=en-GB&t=1111&timeValidityFilter=present"
@@ -45,7 +47,7 @@ def get_traffic_data(coordinates: List[Tuple], zoom: int) -> List[Dict]:
 
     for coordinate in tqdm(coordinates):
         # Send request and parse response
-        url = TRAFFIC_URL.format(coordinate, zoom, API_KEY)
+        url = TRAFFIC_URL.format(coordinate, zoom, TOMTOM_API_KEY)
         response = requests.get(url)
         data = json.loads(response.text)["flowSegmentData"]
 
@@ -75,15 +77,15 @@ def get_incident_data(bbox: str) -> List[Dict]:
     all_data = []
 
     # Send request and parse response
-    url = INCIDENT_URL.format(API_KEY, bbox)
+    url = INCIDENT_URL.format(TOMTOM_API_KEY, bbox)
     response = requests.get(url)
-    data = json.loads(response.text)["incidents"]
+    data = json.loads(response.text).get("incidents", [])
 
     for incident in data:
         # Extract incident data
         incident_data = {
             "geometry_type": incident["geometry"]["type"],
-            "coordinates": incident["geometry"]["coordinates"],
+            "coordinate": get_centerpoint(incident["geometry"]["coordinates"]),
             "incident_type": incident["properties"]["iconCategory"],
         }
 

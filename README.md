@@ -7,12 +7,23 @@ The final project repo for 2023 Spring ELEN 6889 Large Scale Streaming Processin
 
 ## Instruction
 
-How to run:
+### Create environment
 
 ```console
-python3 src/main.py
+conda create --name=nyc-traffic python=3.10.9
+conda activate nyc-traffic
+pip3 install -r requirements
 ```
 
+### How to run
+You can run the whole process in a single script:
+
 ```console
-spark-submit --master "local[*]" --py-files src/congestion_model.py src/main.py
+bash run.sh
+```
+
+then start the http server
+
+```console
+http-server
 ```

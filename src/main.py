@@ -31,14 +31,13 @@ def run_spark_app():
     # speed_df = spark.read.option("multiline", "true").json("data/traffic_tomtom.json")
     sc = SparkContext.getOrCreate()
     speed_df = spark.createDataFrame(spark.read.json(sc.parallelize(speed_data)).rdd)
-    speed_df.show()
 
-    waether_df = spark.createDataFrame(
+    weather_df = spark.createDataFrame(
         spark.read.json(sc.parallelize(weather_data)).rdd
     )
 
     incidents_data = get_incident_middlefile()
-    waether_df = spark.createDataFrame(
+    incident_df = spark.createDataFrame(
         spark.read.json(sc.parallelize(incidents_data)).rdd
     )
 
