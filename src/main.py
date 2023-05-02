@@ -36,13 +36,11 @@ def run_spark_app():
     waether_df = spark.createDataFrame(
         spark.read.json(sc.parallelize(weather_data)).rdd
     )
-    waether_df.show()
 
     incidents_data = get_incident_middlefile()
     waether_df = spark.createDataFrame(
         spark.read.json(sc.parallelize(incidents_data)).rdd
     )
-    waether_df.show()
 
     # 2nd step - spark processing
 

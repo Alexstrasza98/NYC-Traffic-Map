@@ -33,7 +33,7 @@ def get_data_async(sc):
 
 def get_incident_middlefile():
     print("Requesting incident data...")
-    bbox = "-73.981515,40.792483,-73.956882,40.806128"
+    bbox = "-73.992221,40.780339,-73.933464,40.807713"
     incident_data = get_incident_data(bbox)
     return incident_data
 
